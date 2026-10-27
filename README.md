@@ -1,113 +1,88 @@
-# Blu Visual Teacher — Part 2b
+# Blu Visual Teacher — Part 3a: Multilingual, Cue-Synchronized Delivery
 
-Fully local educational lesson planner and English visual narrator. Part 3a will
-add automatic translation and narration for Hindi and Kannada; Part 3b will add
-the final landing-page design, offline demo rehearsal and licensing audit.
+Fully local educational lesson planner with 3-language delivery in **English**, **Hindi**, and **Kannada**.
+One lesson plans once in English, translates into Hindi and Kannada while preserving code, visual labels, and teaching structure, synthesizes native speech, synchronizes on-screen diagrams and captions to exact audio-measured cues, and exports standalone UTF-8 SRT subtitles and 720p H.264/AAC MP4 videos.
+
+## Architecture and Language Pipelines
+
+1. **English (`en`)**:
+   - Voice: Kokoro ONNX `hm_omega` (lang `en-us`).
+   - Planned via local Ollama planner (`qwen3:4b` / `llama3.2:3b`).
+   - Prepared timeline in `backend/cache/lessons/<id>`.
+2. **Hindi (`hi`)**:
+   - Translation: Local offline `ai4bharat/indictrans2-en-indic-dist-200M` (`eng_Latn` -> `hin_Deva`) with protected programming tokens and glossary round-tripping.
+   - Voice: Kokoro ONNX `hf_alpha` (lang `hi`).
+   - Prepared timeline, PCM-aligned cues, and SRT in `backend/cache/localized/<id>`.
+3. **Kannada (`kn`)**:
+   - Translation: Local offline `ai4bharat/indictrans2-en-indic-dist-200M` (`eng_Latn` -> `kan_Knda`) with code token protection.
+   - Voice: `ai4bharat/indic-parler-tts` executed in separate isolated `.venv-tts` via worker `backend/scripts/kannada_tts_worker.py`.
+   - Sequential GPU lifecycle: Ollama -> IndicTrans2 -> Parler TTS (no simultaneous dual heavy models on GPU).
+   - Prepared timeline, PCM-aligned cues, and SRT in `backend/cache/localized/<id>`.
 
 ## Requirements already installed on the demo laptop
 
-- Windows project root `C:\blu`; main Python environment `.venv` and optional
-  Kannada environment `.venv-tts` are not to be rebuilt.
-- Ollama running locally with `qwen3:4b` (live lesson default) or `llama3.2:3b`.
-  `BLU_PLANNER_MODEL` can explicitly select either preinstalled model. The
-  separate frozen Part 2a planner/benchmarks retain their original default.
-- Kokoro ONNX files in `models/kokoro-v1.0.onnx` and `models/voices-v1.0.bin`.
-- Local `ffmpeg`, `ffprobe` and Playwright Chromium installed.
-- Frontend Node dependencies installed in `frontend/node_modules`.
+- Windows project root `C:\blu`.
+- Main Python virtual environment `.venv` (PyTorch, transformers, Kokoro ONNX, IndicTransToolkit).
+- Kannada TTS Python virtual environment `.venv-tts` (PyTorch, transformers, Parler-TTS, soundfile).
+- Local Hugging Face offline cache in `%USERPROFILE%\.cache\huggingface\hub` containing:
+  - `models--ai4bharat--indictrans2-en-indic-dist-200M`
+  - `models--ai4bharat--indic-parler-tts`
+  - `models--hexgrad--Kokoro-82M`
+- Kokoro ONNX models: `models/kokoro-v1.0.onnx` and `models/voices-v1.0.bin`.
+- Locally bundled fonts: Noto Sans, Noto Sans Devanagari, Noto Sans Kannada.
+- Local `ffmpeg`, `ffprobe`, and Playwright Chromium.
 
 ## Run
 
-Open two PowerShell terminals.
+Open two PowerShell terminals from `C:\blu`:
 
-Backend terminal from `C:\blu`:
-
+Backend terminal:
 ```powershell
 .\.venv\Scripts\python -m uvicorn backend.app.main:app --port 8000
 ```
 
-Frontend terminal from `C:\blu`:
-
+Frontend terminal:
 ```powershell
 cd frontend
 npm run dev
 ```
 
-Open `http://127.0.0.1:5173`. Enter any lesson topic, choose level and duration,
-then click **Create lesson**. The text is planned locally through Ollama. Click
-**Prepare and preview lesson**, then **Play**, **Pause**, **Next scene**, **Replay**
-or **Export this lesson as 720p MP4**. The legacy English/Hindi fixed Python-loop
-sample player remains available below the live lesson form.
-Prepared lessons also have a larger review page at `/lesson?id=<lesson-id>`.
-On narrow screens, the current spoken sentence is repeated below the SVG at
-normal text size, with expandable scene/code details.
+Open `http://127.0.0.1:5173`. Enter any lesson topic, choose level and duration, then click **Create lesson**.
+In the generated player:
+- Toggle between **English**, **हिन्दी**, and **ಕನ್ನಡ** seamlessly for the same lesson without replanning.
+- Use controls: **Play**, **Pause**, **Next scene**, **Replay**, and timeline scrub.
+- Download **UTF-8 SRT subtitles** with exact timestamps.
+- Export **720p MP4** in any of the three languages with burned-in native script captions.
 
-**Language limitation:** generated lessons are English-only until Part 3a.
-Selecting Hindi or Kannada in the topic form currently preserves the requested
-language as metadata but creates an English lesson; it does not translate it.
-The existing fixed Hindi sample continues to work.
+## Automated Verification
 
-## Verify
-
-From `C:\blu` with both local servers active:
+From `C:\blu`:
 
 ```powershell
+# Run all Python unit and integration tests (93 tests total)
 .\.venv\Scripts\python -m pytest backend/tests -q
+
+# Run specific Part 3a contract and media tests
+.\.venv\Scripts\python -m pytest backend/tests/test_translation_contract.py -q -vv
+.\.venv\Scripts\python -m pytest backend/tests/test_localized_media.py -q -vv
+
+# Build production frontend
 cd frontend
 npm run build
 cd ..
+
+# Run Part 3a 3-language end-to-end smoke test (requires backend and frontend running)
+.\.venv\Scripts\python backend/scripts/smoke_3a.py
+
+# Rerun baseline Part 2b English live smoke and Part 1b sample smoke
 .\.venv\Scripts\python backend/scripts/smoke_2b.py
 .\.venv\Scripts\python backend/scripts/smoke_part1b.py
 ```
 
-Open and listen to the exported *photosynthesis* and *Python loop* MP4s; verify
-that all diagrams and subtitles match the new topics. Repeat a complete run
-with Wi-Fi off and confirm no external network request is made. Compare the
-browser SVG at a known playback time to its exported MP4 frame.
+## Contract Invariants and Safeguards
 
-## Architecture and file ownership
-
-- `backend/app/planner.py`: Ollama-local structured JSON lesson planning, retry,
-  content validation and topical fallback.
-- `backend/app/live.py`: English voice per scene, content-addressed lesson
-  cache, audio-measured scene durations.
-- `backend/app/live_export.py`: browser-equivalent deterministic SVG frames
-  rendered by Playwright and encoded by FFmpeg as H.264/AAC 1280x720 MP4.
-- `frontend/src/DynamicSceneContent.tsx`: generic data-driven title, diagram,
-  code walkthrough and step-list SVG components. No model-authored code runs.
-- `frontend/src/LessonPlayer.tsx`: real lesson preview, audio-synced controls,
-  MP4 download and a headless export route.
-- `backend/app/media.py`, `backend/app/exporter.py`, `frontend/src/SamplePlayer.tsx`:
-  previously verified Part 1b fixed sample, intentionally preserved.
-
-All runtime requests go only to localhost. Do not upgrade working models,
-packages or voices during the hackathon. Generated media lives beneath
-`backend/cache/lessons/` and `outputs/lessons/` and is not source code.
-
-## Limitations and next phases
-
-Playable generated lessons are measured at **30–90 seconds**, including the
-existing 0.5-second scene pauses. Create lesson now plans AND measures speech;
-if the script is outside that range, it rewrites teaching content and measures
-again. Speech speed and silence are not stretched to satisfy the limit. The
-30/60/90 choice guides the script within that range. If a complete timed lesson
-cannot be produced, the UI clearly shows a fallback outline without a video player.
-
-Generated item data pairs a short visual label with one spoken fact, separated
-internally by ` :: `. Code labels identify actual line numbers. The backend
-builds narration from these same facts; each fact is synthesized once into the
-scene WAV. Its exact PCM boundaries drive captions and concept/code focus in both
-the browser and export; there are no equal-percentage item reveals. Concept
-diagrams use local SVG illustrations, molecules, sunlight, water, plants, energy
-and process arrows according to the lesson's labels. The frozen Part 2a planner
-file remains unchanged; the Part 2b live layer adds teaching/relevance checks
-through its existing local transport hook. Model facts still need human review.
-The photosynthesis and Python-loop teaching briefs add explicit causal questions,
-worked examples and factual checks. These are grounded planning instructions;
-they are not a guarantee of factual correctness for every arbitrary subject.
-Python display code is parsed to catch syntax and missing-input mistakes; it is
-never executed. A fallback outline is not labelled as a completed narrated lesson.
-
-Advanced formula/chart illustration is outside this stage. Hindi/Kannada automatic translation, voice, captions
-and SRT are deliberately left for Part 3a. The robot design and verified model
-and asset licences belong to Part 3b. Verify every licence from primary sources
-before submitting the project.
+- **Content & Beat Contract**: Spoken facts are paired with visual labels (`label :: fact`). Each fact is individually translated and synthesized into its own PCM WAV chunk to derive exact cue timestamps.
+- **Code Walkthrough Safety**: In `code_walkthrough` scenes, Python source code, line numbers (`Line 1`, `Line 2`), keywords (`for`, `range`, `print`), variables, and numeric literals (`0`, `1`, `2`) are strictly protected from modification.
+- **No Inferred/Timer Captions**: Caption cues reflect real audio duration measured from PCM frames. Subtitle SRT files contain no padding or silent pause captions.
+- **Cache Isolation**: English lessons are stored in `backend/cache/lessons/`; localized Hindi and Kannada lessons are stored in `backend/cache/localized/`.
+- **Zero-Width Character Sanitization**: Invisible characters (`\u200b`, `\u200c`, `\u200d`, `\ufeff`) that disrupt speech synthesis or font shaping are safely stripped.

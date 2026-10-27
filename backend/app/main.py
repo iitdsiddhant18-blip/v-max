@@ -12,6 +12,8 @@ from .media import CACHE_ROOT, ROOT, load_timeline, prepare_sample
 from .schema import GenerateRequest, GenerateResponse, Lesson
 from .live import LIVE_ROOT, lesson_folder, load_lesson, prepare_lesson, plan_timed_lesson as plan_lesson
 from .live_export import export_lesson
+from .localized_media import LOCALIZED_ROOT, load_localized, localized_folder, prepare_localized
+from .localized_export import export_localized
 
 app = FastAPI(title="Blu Visual Teacher", version="0.1.0")
 
@@ -150,4 +152,80 @@ def lesson_video(identifier: str) -> FileResponse:
             raise FileNotFoundError
     except (ValueError, FileNotFoundError):
         raise HTTPException(status_code=404, detail="Export the lesson first") from None
+    return FileResponse(path, media_type="video/mp4", filename=f"blu_{identifier[:12]}.mp4")
+
+
+class LocalizedPrepareRequest(BaseModel):
+    source_lesson_id: str
+    language: Literal["hi", "kn"]
+
+
+@app.post("/api/localized/prepare")
+def localized_prepare(req: LocalizedPrepareRequest) -> dict:
+    try:
+        return prepare_localized(req.source_lesson_id, req.language, enforce_duration=False)
+    except (ValueError, FileNotFoundError, RuntimeError) as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.get("/api/localized/timeline/{identifier}")
+def localized_timeline(identifier: str) -> dict:
+    try:
+        return load_localized(identifier, root=LOCALIZED_ROOT)
+    except (ValueError, FileNotFoundError, OSError) as exc:
+        raise HTTPException(status_code=404, detail="Unknown prepared localized lesson") from exc
+
+
+@app.get("/api/localized/media/{identifier}/{filename}")
+def localized_media(identifier: str, filename: str) -> FileResponse:
+    if filename != "combined.wav" and not (
+        len(filename) == len("scene_00.wav") and filename.startswith("scene_")
+        and filename.endswith(".wav") and filename[6:8].isdigit()
+    ):
+        raise HTTPException(status_code=404, detail="Unknown audio")
+    try:
+        manifest = load_localized(identifier, root=LOCALIZED_ROOT)
+        if filename.startswith("scene_") and int(filename[6:8]) >= len(manifest["scenes"]):
+            raise ValueError("Unknown scene")
+        path = localized_folder(identifier, root=LOCALIZED_ROOT) / filename
+        if not path.is_file():
+            raise FileNotFoundError
+    except (ValueError, FileNotFoundError, OSError):
+        raise HTTPException(status_code=404, detail="Unknown audio") from None
+    return FileResponse(path, media_type="audio/wav", filename=filename,
+                        content_disposition_type="inline")
+
+
+@app.get("/api/localized/subtitles/{identifier}")
+def localized_subtitles(identifier: str) -> FileResponse:
+    try:
+        folder = localized_folder(identifier, root=LOCALIZED_ROOT)
+        path = folder / "subtitles.srt"
+        if not path.is_file():
+            raise FileNotFoundError
+    except (ValueError, FileNotFoundError, OSError):
+        raise HTTPException(status_code=404, detail="Unknown subtitles") from None
+    return FileResponse(path, media_type="text/plain; charset=utf-8",
+                        filename=f"subtitles_{identifier[:12]}.srt")
+
+
+@app.post("/api/localized/export/{identifier}")
+def localized_export_endpoint(identifier: str) -> dict:
+    try:
+        return export_localized(identifier)
+    except (ValueError, FileNotFoundError) as exc:
+        raise HTTPException(status_code=404, detail="Unknown or incomplete localized lesson") from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Localized MP4 export failed: {exc}") from exc
+
+
+@app.get("/api/localized/video/{identifier}")
+def localized_video(identifier: str) -> FileResponse:
+    try:
+        localized_folder(identifier)
+        path = ROOT / "outputs" / "localized" / f"{identifier}.mp4"
+        if not path.is_file():
+            raise FileNotFoundError
+    except (ValueError, FileNotFoundError):
+        raise HTTPException(status_code=404, detail="Export the localized lesson first") from None
     return FileResponse(path, media_type="video/mp4", filename=f"blu_{identifier[:12]}.mp4")

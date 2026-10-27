@@ -1,6 +1,34 @@
 import type { NarrationCue, Scene } from "./types";
 
-
+function tr(key: string, lang?: string): string {
+  if (lang === "hi") {
+    const dict: Record<string, string> = {
+      "Without light": "प्रकाश के बिना",
+      "With light": "प्रकाश के साथ",
+      "No new sugar": "कोई नई शर्करा नहीं",
+      "New sugar": "नई शर्करा",
+      "Same water and carbon dioxide • compare light": "समान पानी और कार्बन डाइऑक्साइड • प्रकाश की तुलना करें",
+      "Plant growth": "पौधों की वृद्धि",
+      "Example data / trace": "उदाहरण डेटा / ट्रेस",
+      "Let's learn, one step at a time": "आइए सीखें, एक समय में एक कदम",
+    };
+    return dict[key] || key;
+  }
+  if (lang === "kn") {
+    const dict: Record<string, string> = {
+      "Without light": "ಬೆಳಕಿಲ್ಲದೆ",
+      "With light": "ಬೆಳಕಿನೊಂದಿಗೆ",
+      "No new sugar": "ಹೊಸ ಸಕ್ಕರೆ ಇಲ್ಲ",
+      "New sugar": "ಹೊಸ ಸಕ್ಕರೆ",
+      "Same water and carbon dioxide • compare light": "ಅದೇ ನೀರು ಮತ್ತು ಕಾರ್ಬನ್ ಡೈಆಕ್ಸೈಡ್ • ಬೆಳಕನ್ನು ಹೋಲಿಸಿ",
+      "Plant growth": "ಸಸ್ಯದ ಬೆಳವಣಿಗೆ",
+      "Example data / trace": "ಉದಾಹರಣೆ ಡೇಟಾ / ಟ್ರೇಸ್",
+      "Let's learn, one step at a time": "ಒಂದೊಂದೇ ಹಂತವಾಗಿ ಕಲಿಯೋಣ",
+    };
+    return dict[key] || key;
+  }
+  return key;
+}
 
 // Conservative local-font widths keep validated 120-character headings inside
 // the SVG, including single words. Layout is a pure function of the text.
@@ -112,10 +140,14 @@ function Plant() {
   </g>;
 }
 
-function LeafComparison({ scene, focus, progress }: { scene: Scene; focus: number[]; progress: number }) {
+function LeafComparison({ scene, semanticScene, focus, progress, language }: {
+  scene: Scene; semanticScene?: Scene; focus: number[]; progress: number; language?: string;
+}) {
+  const sem = semanticScene || scene;
+  const semLabels = sem.items.map(labelOf);
   const labels = scene.items.map(labelOf);
-  const lightIndex = labels.findIndex(item => /sunlit|sunlight|lit leaf|with light/i.test(item));
-  const darkIndex = labels.findIndex(item => /dark|night|without light/i.test(item));
+  const lightIndex = semLabels.findIndex(item => /sunlit|sunlight|lit leaf|with light/i.test(item));
+  const darkIndex = semLabels.findIndex(item => /dark|night|without light/i.test(item));
   return <g data-diagram="light-dark-prediction">
     {[{ x: 125, center: 365, dark: false, index: lightIndex },
       { x: 675, center: 915, dark: true, index: darkIndex }].map(panel =>
@@ -124,7 +156,7 @@ function LeafComparison({ scene, focus, progress }: { scene: Scene; focus: numbe
           fill={panel.dark ? "#14243d" : "#183d50"}
           stroke={focus.includes(panel.index) ? "#ffcf68" : "#42647b"} strokeWidth="3" />
         <text x={panel.center} y="249" textAnchor="middle" fill="#e6f4ff" fontSize="27">
-          {labels[panel.index] || (panel.dark ? "Without light" : "With light")}</text>
+          {labels[panel.index] || (panel.dark ? tr("Without light", language) : tr("With light", language))}</text>
         <g transform={`translate(${panel.center - 640} 0)`}><Plant /></g>
         {panel.dark ? <g>
           <circle cx={panel.x + 405} cy="300" r="31" fill="#e8dcaa" />
@@ -135,11 +167,11 @@ function LeafComparison({ scene, focus, progress }: { scene: Scene; focus: numbe
           stroke="#ed9695" strokeWidth="5" /> : <Flow
           points={[{ x: panel.center + 55, y: 360 }, { x: panel.x + 360, y: 440 }]}
           active={focus.includes(panel.index)} progress={progress} />}
-        <text x={panel.x + 405} y="511" textAnchor="middle" fill="#f5dea1" fontSize="19">
-          {panel.dark ? "No new sugar" : "New sugar"}</text>
+        <text x={panel.x + 405} y={511} textAnchor="middle" fill="#f5dea1" fontSize="19">
+          {panel.dark ? tr("No new sugar", language) : tr("New sugar", language)}</text>
       </g>)}
     <text x="640" y="566" textAnchor="middle" fill="#ffda8a" fontSize="23">
-      Same water and carbon dioxide • compare light</text>
+      {tr("Same water and carbon dioxide • compare light", language)}</text>
   </g>;
 }
 
@@ -179,10 +211,14 @@ function ArrowDefinition() {
     <path d="M 0 0 L 10 5 L 0 10 z" fill="#ffcf68" /></marker></defs>;
 }
 
-function CarbonGrowth({ scene, focus, progress }: { scene: Scene; focus: number[]; progress: number }) {
+function CarbonGrowth({ scene, semanticScene, focus, progress, language }: {
+  scene: Scene; semanticScene?: Scene; focus: number[]; progress: number; language?: string;
+}) {
+  const sem = semanticScene || scene;
+  const semLabels = sem.items.map(labelOf);
   const labels = scene.items.map(labelOf);
-  const carbon = Math.max(0, labels.findIndex(s => /carbon/i.test(s)));
-  const sugar = Math.max(0, labels.findIndex(s => /sugar|energy|growth/i.test(s)));
+  const carbon = Math.max(0, semLabels.findIndex(s => /carbon/i.test(s)));
+  const sugar = Math.max(0, semLabels.findIndex(s => /sugar|energy|growth/i.test(s)));
   return <g data-diagram="carbon-to-growth">
     <ArrowDefinition />
     <circle cx="240" cy="350" r="76" fill="#173650" stroke="#6c9cb9" strokeWidth="3" />
@@ -192,25 +228,31 @@ function CarbonGrowth({ scene, focus, progress }: { scene: Scene; focus: number[
     <g transform="translate(390 0)"><Plant /></g>
     <Flow points={[{ x: 325, y: 350 }, { x: 553, y: 350 }]} active={focus.includes(carbon)} progress={progress} />
     <Flow points={[{ x: 725, y: 350 }, { x: 952, y: 350 }]} active={focus.includes(sugar)} progress={progress} color="#91dfa7" />
-    {[{ x: 240, text: labels[carbon] }, { x: 640, text: labels[sugar] }].map((node, i) => {
+    {[{ x: 240, text: labels[carbon] || semLabels[carbon] }, { x: 640, text: labels[sugar] || semLabels[sugar] }].map((node, i) => {
       const fit = fitHeading(node.text || "", 310, 27, 3);
       return <g key={i}>{fit.lines.map((line, j) => <text key={j} x={node.x} y={460 + j * 31}
         textAnchor="middle" fill="#e5effa" fontSize={fit.size}>{line}</text>)}</g>;
     })}
-    <text x="1030" y="560" textAnchor="middle" fill="#a7e4b5" fontSize="26">Plant growth</text>
+    <text x="1030" y="560" textAnchor="middle" fill="#a7e4b5" fontSize="26">
+      {tr("Plant growth", language)}</text>
   </g>;
 }
 
-function ConceptDiagram({ scene, focus, progress }: { scene: Scene; focus: number[]; progress: number }) {
+function ConceptDiagram({ scene, semanticScene, focus, progress }: {
+  scene: Scene; semanticScene?: Scene; focus: number[]; progress: number;
+}) {
+  const sem = semanticScene || scene;
+  const semNodes = sem.items.slice(0, 5).map(labelOf);
   const nodes = scene.items.slice(0, 5).map(labelOf);
-  const plant = !nodes.some(s => /dark|night|without|no light/i.test(s))
-    && nodes.filter(s => /sun|light|water|carbon|oxygen|glucose|chlorophyll|leaf/i.test(s)).length >= 2;
+  const plant = !semNodes.some(s => /dark|night|without|no light/i.test(s))
+    && semNodes.filter(s => /sun|light|water|carbon|oxygen|glucose|chlorophyll|leaf/i.test(s)).length >= 2;
   return <g data-diagram={plant ? "plant-process" : "concept-process"}>
     <ArrowDefinition />
     {plant && <Plant />}
     {nodes.map((label, i) => {
-      const role = /sun|light/i.test(label) ? "sun" : /water|root/i.test(label) ? "water"
-        : /carbon|co2|co₂/i.test(label) ? "carbon" : /oxygen|o2|o₂/i.test(label) ? "oxygen" : "sugar";
+      const semLabel = semNodes[i] || label;
+      const role = /sun|light/i.test(semLabel) ? "sun" : /water|root/i.test(semLabel) ? "water"
+        : /carbon|co2|co₂/i.test(semLabel) ? "carbon" : /oxygen|o2|o₂/i.test(semLabel) ? "oxygen" : "sugar";
       const slots: Record<string, Point> = { sun: { x: 200, y: 265 }, water: { x: 210, y: 455 },
         carbon: { x: 1040, y: 245 }, oxygen: { x: 1080, y: 375 }, sugar: { x: 1010, y: 470 } };
       const point = plant ? slots[role] : { x: 110 + (i + .5) * 1060 / nodes.length, y: 330 };
@@ -234,7 +276,7 @@ function ConceptDiagram({ scene, focus, progress }: { scene: Scene; focus: numbe
         <Flow points={path} active={active} progress={progress} color={role === "water" ? "#68cfff" : "#ffcf68"} />
         <circle cx={point.x} cy={point.y} r="53" fill={active ? "#315369" : "#152d47"}
           stroke={active ? "#ffe09a" : "#355b78"} strokeWidth={active ? 5 : 1} />
-        <Glyph label={label} x={point.x} y={point.y} />
+        <Glyph label={semLabel} x={point.x} y={point.y} />
         {fit.lines.slice(0, side ? 3 : 2).map((line, j) => <text key={j}
           x={side ? point.x + 66 : point.x} y={side ? point.y - 9 + j * 24 : point.y + 80 + j * 24}
           textAnchor={side ? "start" : "middle"} fontSize={fit.size}
@@ -243,9 +285,10 @@ function ConceptDiagram({ scene, focus, progress }: { scene: Scene; focus: numbe
     })}
   </g>;
 }
+
 // Every changing highlight is selected by a measured speech cue, never a timer.
-export default function DynamicSceneContent({ scene, cue, cueProgress = 0 }: {
-  scene: Scene; progress: number; cue?: NarrationCue; cueProgress?: number;
+export default function DynamicSceneContent({ scene, semanticScene, cue, cueProgress = 0, language }: {
+  scene: Scene; semanticScene?: Scene; progress: number; cue?: NarrationCue; cueProgress?: number; language?: string;
 }) {
   if (scene.type === "title_card") {
     const heading = fitHeading(scene.heading, 1110, 51, 3);
@@ -253,22 +296,23 @@ export default function DynamicSceneContent({ scene, cue, cueProgress = 0 }: {
       {heading.lines.map((line, i, all) => <text key={i} x="640"
         y={300 + (i - (all.length - 1) / 2) * 66} fill="#ffda76" textAnchor="middle"
         fontSize={heading.size} fontWeight="700">{line}</text>)}
-      {splitLines(scene.subtitle || "Let's learn, one step at a time", 58, 2).map((line, i) =>
+      {splitLines(scene.subtitle || tr("Let's learn, one step at a time", language), 58, 2).map((line, i) =>
         <text key={i} x="640" y={425 + i * 42} fill="#dce5ff" textAnchor="middle" fontSize="27">{line}</text>)}
     </g>;
   }
   const focusedItems = cue?.item_indices || (cue?.item_index != null ? [cue.item_index] : []);
-  const content = scene.narration + " " + scene.items.map(labelOf).join(" ");
+  const sem = semanticScene || scene;
+  const content = sem.narration + " " + sem.items.map(labelOf).join(" ");
   const focusBadge = cue?.label && <text x="640" y="194" textAnchor="middle" fill="#ffda8a" fontSize="22">{cue.label}</text>;
-  if (scene.type === "diagram" && /leaf/i.test(content) && /dark|night/i.test(content)
+  if (sem.type === "diagram" && /leaf/i.test(content) && /dark|night/i.test(content)
     && /lit leaf|with light|sunlit|sunlight/i.test(content)) {
     return <g>{cue?.label && <text x="640" y="194" textAnchor="middle" fill="#ffda8a" fontSize="22">{cue.label}</text>}
-      <ArrowDefinition /><LeafComparison scene={scene} focus={focusedItems} progress={cueProgress} /></g>;
+      <ArrowDefinition /><LeafComparison scene={scene} semanticScene={semanticScene} focus={focusedItems} progress={cueProgress} language={language} /></g>;
   }
-  const labels = scene.items.map(labelOf).join(" ");
-  if (scene.type === "step_list" && /carbon/i.test(labels) && /sugar|growth/i.test(labels)
-    && !/recap|takeaway|check/i.test(scene.heading)) return <g>{focusBadge}<CarbonGrowth scene={scene} focus={focusedItems} progress={cueProgress} /></g>;
-  if (scene.type === "diagram") return <g>{focusBadge}<ConceptDiagram scene={scene} focus={focusedItems} progress={cueProgress} /></g>;
+  const labels = sem.items.map(labelOf).join(" ");
+  if (sem.type === "step_list" && /carbon/i.test(labels) && /sugar|growth/i.test(labels)
+    && !/recap|takeaway|check/i.test(sem.heading)) return <g>{focusBadge}<CarbonGrowth scene={scene} semanticScene={semanticScene} focus={focusedItems} progress={cueProgress} language={language} /></g>;
+  if (sem.type === "diagram") return <g>{focusBadge}<ConceptDiagram scene={scene} semanticScene={semanticScene} focus={focusedItems} progress={cueProgress} /></g>;
   if (scene.type === "code_walkthrough") {
     const lines = (scene.code || "").split("\n").slice(0, 7);
     const active = cue?.highlight_lines.length ? cue.highlight_lines : scene.highlight_lines;
@@ -287,7 +331,7 @@ export default function DynamicSceneContent({ scene, cue, cueProgress = 0 }: {
       </g>)}
       {context.length > 0 && <g>
         <rect x="850" y="175" width="340" height="375" rx="22" fill="#19374c" stroke="#6b9cae" />
-        <text x="875" y="212" fill="#ffda8a" fontSize="23">Example data / trace</text>
+        <text x="875" y="212" fill="#ffda8a" fontSize="23">{tr("Example data / trace", language)}</text>
         {context.map((item, index) => {
           const layout = fitHeading(item, 285, 21, 2);
           const step = Math.min(110, 280 / context.length);

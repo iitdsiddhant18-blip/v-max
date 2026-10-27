@@ -35,6 +35,7 @@ export interface GenerateResponse {
 
 // Part 1b has a separate, audio-derived timeline. Do not add timing fields to Scene.
 export type SampleLanguage = "en" | "hi";
+export type GeneratedLanguage = "en" | "hi" | "kn";
 
 export interface TimedScene {
   index: number;
@@ -58,13 +59,16 @@ export interface NarrationCue {
 export interface SampleTimeline {
   kind?: "generated";
   lesson_id?: string;
-  language: SampleLanguage;
+  source_lesson_id?: string;
+  subtitle_url?: string;
+  language: SampleLanguage | GeneratedLanguage;
   voice: string;
   sample_rate: number;
   pause_seconds: number;
   total_seconds: number;
   audio_url: string;
   lesson: Lesson;
+  semantic_lesson?: Lesson;
   scenes: TimedScene[];
 }
 

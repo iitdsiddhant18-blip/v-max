@@ -1,11 +1,12 @@
 import { useRef, useState } from "react";
 import type { GenerateRequest, GenerateResponse, LanguageCode, Level } from "./types";
 import SamplePlayer, { ExportView } from "./SamplePlayer";
-import LessonPlayer, { GeneratedExportView, PreparedLessonView } from "./LessonPlayer";
+import LessonPlayer, { GeneratedExportView, LocalizedExportView, PreparedLessonView } from "./LessonPlayer";
 
 export default function App() {
   if (window.location.pathname === "/render") return <ExportView />;
   if (window.location.pathname === "/render-lesson") return <GeneratedExportView />;
+  if (window.location.pathname === "/render-localized") return <LocalizedExportView />;
   if (window.location.pathname === "/lesson") return <PreparedLessonView />;
   return <MainApp />;
 }
@@ -131,7 +132,7 @@ function MainApp() {
             ))}
           </ol>
           {result.source === "llm"
-            ? <LessonPlayer key={JSON.stringify(result.lesson)} lesson={result.lesson} onPlaybackStart={closeSamples} />
+            ? <LessonPlayer key={JSON.stringify(result.lesson)} lesson={result.lesson} targetLanguage={language} onPlaybackStart={closeSamples} />
             : <p role="alert" className="mt-4 rounded bg-amber-100 p-3">
               The local planner could not produce a complete timed lesson. This is a generic study outline;
               check Ollama and try again before preparing a video.

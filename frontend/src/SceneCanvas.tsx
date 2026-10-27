@@ -131,6 +131,7 @@ export default function SceneCanvas({ timeline, time }: {
   }
   const entry = timeline.scenes[index];
   const scene = timeline.lesson.scenes[index];
+  const semanticScene = timeline.semantic_lesson?.scenes[index];
   const local = t - entry.start_seconds;
   const progress = clamp(local / Math.max(entry.audio_seconds, 0.001));
   const cue = entry.cues?.find(c => local >= c.start_seconds && local < c.end_seconds)
@@ -152,7 +153,7 @@ export default function SceneCanvas({ timeline, time }: {
           : <text x="85" y="152" fill="white" fontSize="42" fontWeight="700">{scene.heading}</text>
       )}
       {timeline.kind === "generated"
-        ? <DynamicSceneContent scene={scene} progress={progress} cue={cue} cueProgress={cueProgress} />
+        ? <DynamicSceneContent scene={scene} semanticScene={semanticScene} progress={progress} cue={cue} cueProgress={cueProgress} language={timeline.language} />
         : <Content scene={scene} progress={progress} hindi={timeline.language === "hi"} />}
       <rect x="0" y="579" width="1280" height="141" fill="#071226" />
       {captions.map((line, i) => (
