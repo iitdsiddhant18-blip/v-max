@@ -1,4 +1,4 @@
-"""Blu Visual Teacher API: Part 1a endpoints plus Part 1b sample export."""
+"""Blu Visual Teacher API: Part 2a local planner plus Part 1b sample export."""
 from pathlib import Path
 from typing import Literal
 
@@ -8,8 +8,8 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from .exporter import export_sample
-from .fallback import load_fallback_lesson
 from .media import CACHE_ROOT, ROOT, load_timeline, prepare_sample
+from .planner import plan_lesson
 from .schema import GenerateRequest, GenerateResponse
 
 app = FastAPI(title="Blu Visual Teacher", version="0.1.0")
@@ -29,9 +29,10 @@ def health() -> dict:
 
 @app.post("/api/generate", response_model=GenerateResponse)
 def generate(req: GenerateRequest) -> GenerateResponse:
-    # Keep the verified Part 1a behaviour unchanged.
-    lesson = load_fallback_lesson()
-    return GenerateResponse(request=req, source="fallback", lesson=lesson)
+    # Part 2a: JSON-only local planner; never runs model-written code.
+    # English lesson text is intentional until translation in Part 3a.
+    source, lesson = plan_lesson(req)
+    return GenerateResponse(request=req, source=source, lesson=lesson)
 
 
 class SampleRequest(BaseModel):
