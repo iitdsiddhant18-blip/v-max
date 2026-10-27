@@ -1,0 +1,36 @@
+{
+  "title": "How a Python loop works",
+  "level": "beginner",
+  "language": "en",
+  "scenes": [
+    {
+      "type": "title_card",
+      "heading": "How does a Python loop work?",
+      "subtitle": "Repeat work without repeating code",
+      "narration": "A loop repeats an instruction for each value in a sequence."
+    },
+    {
+      "type": "code_walkthrough",
+      "heading": "Step 1: Read the code",
+      "code": "for i in range(3):\n    print(i)",
+      "highlight_lines": [1],
+      "narration": "Range of three gives three values: zero, one and two."
+    },
+    {
+      "type": "diagram",
+      "heading": "Step 2: Watch each pass",
+      "items": ["i = 0", "i = 1", "i = 2"],
+      "narration": "Each pass takes the next value, then runs print i."
+    },
+    {
+      "type": "step_list",
+      "heading": "Recap",
+      "items": [
+        "Pick the next value",
+        "Run the indented code",
+        "Repeat until the values run out"
+      ],
+      "narration": "So a loop picks a value, runs the code, and repeats until the values run out."
+    }
+  ]
+}

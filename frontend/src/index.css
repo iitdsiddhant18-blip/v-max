@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+/* Fonts are bundled locally by npm (@fontsource); nothing loads from the internet. */
+@theme {
+  --font-sans: "Noto Sans", "Noto Sans Devanagari", "Noto Sans Kannada", ui-sans-serif,
+    system-ui, sans-serif;
+}

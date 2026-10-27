@@ -1,0 +1,23 @@
+# Python
+.venv/
+.venv-tts/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Large model files (downloaded separately, listed in README)
+/models/
+
+# Pre-event benchmark scratch files (root level only; backend/tests is NOT ignored)
+/test_*.py
+/*.wav
+/translations.txt
+/pw_test.png
+
+# Generated at runtime
+backend/cache/
+outputs/
