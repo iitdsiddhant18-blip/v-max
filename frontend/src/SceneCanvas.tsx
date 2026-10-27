@@ -1,4 +1,5 @@
 import type { SampleTimeline, Scene } from "./types";
+import DynamicSceneContent, { GeneratedHeading } from "./DynamicSceneContent";
 
 function clamp(value: number, minimum = 0, maximum = 1): number {
   return Math.max(minimum, Math.min(maximum, value));
@@ -132,7 +133,11 @@ export default function SceneCanvas({ timeline, time }: {
   const scene = timeline.lesson.scenes[index];
   const local = t - entry.start_seconds;
   const progress = clamp(local / Math.max(entry.audio_seconds, 0.001));
-  const captions = wrapWords(scene.narration);
+  const cue = entry.cues?.find(c => local >= c.start_seconds && local < c.end_seconds)
+    || entry.cues?.[entry.cues.length - 1];
+  const cueProgress = cue ? clamp((local - cue.start_seconds) / Math.max(.001, cue.end_seconds - cue.start_seconds)) : 0;
+  const captions = wrapWords(timeline.kind === "generated" ? cue?.text || scene.narration : scene.narration,
+    timeline.kind === "generated" ? 78 : 60);
 
   return (
     <svg id="lesson-stage" data-time={t.toFixed(6)} width="1280" height="720"
@@ -143,13 +148,17 @@ export default function SceneCanvas({ timeline, time }: {
       <rect x="0" y="0" width={1280 * clamp(t / timeline.total_seconds)} height="10" fill="#ffca63" />
       <text x="80" y="94" fill="#ffcf68" fontSize="26" fontWeight="700">BLU VISUAL TEACHER</text>
       {scene.type !== "title_card" && (
-        <text x="85" y="152" fill="white" fontSize="42" fontWeight="700">{scene.heading}</text>
+        timeline.kind === "generated" ? <GeneratedHeading heading={scene.heading} />
+          : <text x="85" y="152" fill="white" fontSize="42" fontWeight="700">{scene.heading}</text>
       )}
-      <Content scene={scene} progress={progress} hindi={timeline.language === "hi"} />
+      {timeline.kind === "generated"
+        ? <DynamicSceneContent scene={scene} progress={progress} cue={cue} cueProgress={cueProgress} />
+        : <Content scene={scene} progress={progress} hindi={timeline.language === "hi"} />}
       <rect x="0" y="579" width="1280" height="141" fill="#071226" />
       {captions.map((line, i) => (
-        <text key={i} x="640" y={622 + i * 35} textAnchor="middle"
-          fill="white" fontSize="27">{line}</text>
+        <text key={i} data-caption={timeline.kind === "generated" ? "true" : undefined}
+          x="640" y={622 + i * 35} textAnchor="middle"
+          fill="white" fontSize={timeline.kind === "generated" ? 24 : 27}>{line}</text>
       ))}
       <text x="1190" y="98" fill="#b9cbef" fontSize="22" textAnchor="end">
         {index + 1} / {timeline.scenes.length}

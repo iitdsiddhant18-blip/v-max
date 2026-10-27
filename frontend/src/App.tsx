@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { GenerateRequest, GenerateResponse, LanguageCode, Level } from "./types";
 import SamplePlayer, { ExportView } from "./SamplePlayer";
+import LessonPlayer, { GeneratedExportView, PreparedLessonView } from "./LessonPlayer";
 
 export default function App() {
   if (window.location.pathname === "/render") return <ExportView />;
+  if (window.location.pathname === "/render-lesson") return <GeneratedExportView />;
+  if (window.location.pathname === "/lesson") return <PreparedLessonView />;
   return <MainApp />;
 }
 
@@ -15,9 +18,18 @@ function MainApp() {
   const [result, setResult] = useState<GenerateResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [samplesOpen, setSamplesOpen] = useState(false);
+  const samplePanel = useRef<HTMLDivElement>(null);
+
+  function closeSamples() {
+    samplePanel.current?.querySelectorAll("audio").forEach(audio => audio.pause());
+    setSamplesOpen(false);
+  }
 
   async function onSubmit(e: React.SyntheticEvent) {
     e.preventDefault();
+    closeSamples();
+    document.querySelectorAll("audio").forEach(audio => audio.pause());
     setBusy(true);
     setError(null);
     const body: GenerateRequest = { topic, level, language, target_seconds: seconds };
@@ -40,7 +52,7 @@ function MainApp() {
   return (
     <main className="mx-auto max-w-2xl p-6 font-sans">
       <h1 className="text-3xl font-bold">Blu Visual Teacher</h1>
-      <p className="mt-1 text-sm text-neutral-600">Phase 1a form + Part 1b narrated sample.</p>
+      <p className="mt-1 text-sm text-neutral-600">Local lessons with explanatory visuals and 30–90 seconds of English narration.</p>
 
       <form onSubmit={onSubmit} className="mt-6 space-y-4">
         <label className="block">
@@ -93,7 +105,7 @@ function MainApp() {
           disabled={busy}
           className="rounded bg-amber-400 px-5 py-2 font-medium disabled:opacity-50"
         >
-          {busy ? "Working..." : "Create lesson"}
+          {busy ? "Planning and timing the narration..." : "Create lesson"}
         </button>
       </form>
 
@@ -118,9 +130,22 @@ function MainApp() {
               </li>
             ))}
           </ol>
+          {result.source === "llm"
+            ? <LessonPlayer key={JSON.stringify(result.lesson)} lesson={result.lesson} onPlaybackStart={closeSamples} />
+            : <p role="alert" className="mt-4 rounded bg-amber-100 p-3">
+              The local planner could not produce a complete timed lesson. This is a generic study outline;
+              check Ollama and try again before preparing a video.
+            </p>}
         </section>
       )}
-      <SamplePlayer />
+      <section className="mt-10 border-t pt-5">
+        <button className="text-sm text-blue-800 underline" aria-expanded={samplesOpen}
+          onClick={() => {
+            document.querySelectorAll("audio").forEach(audio => audio.pause());
+            setSamplesOpen(!samplesOpen);
+          }}>Legacy fixed Python-loop samples — English/Hindi short demo</button>
+        {samplesOpen && <div ref={samplePanel}><SamplePlayer /></div>}
+      </section>
     </main>
   );
 }

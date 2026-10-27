@@ -42,9 +42,22 @@ export interface TimedScene {
   audio_seconds: number;
   duration_seconds: number;
   audio_url: string;
+  cues?: NarrationCue[];
+}
+
+export interface NarrationCue {
+  label?: string;
+  text: string;
+  start_seconds: number;
+  end_seconds: number;
+  item_index: number | null;
+  item_indices?: number[];
+  highlight_lines: number[];
 }
 
 export interface SampleTimeline {
+  kind?: "generated";
+  lesson_id?: string;
   language: SampleLanguage;
   voice: string;
   sample_rate: number;

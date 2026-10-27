@@ -9,8 +9,9 @@ from pydantic import BaseModel
 
 from .exporter import export_sample
 from .media import CACHE_ROOT, ROOT, load_timeline, prepare_sample
-from .planner import plan_lesson
-from .schema import GenerateRequest, GenerateResponse
+from .schema import GenerateRequest, GenerateResponse, Lesson
+from .live import LIVE_ROOT, lesson_folder, load_lesson, prepare_lesson, plan_timed_lesson as plan_lesson
+from .live_export import export_lesson
 
 app = FastAPI(title="Blu Visual Teacher", version="0.1.0")
 
@@ -88,3 +89,65 @@ def sample_video(language: Literal["en", "hi"]) -> FileResponse:
     if not path.is_file():
         raise HTTPException(status_code=404, detail="Export this sample first")
     return FileResponse(path, media_type="video/mp4", filename=f"python_loop_{language}.mp4")
+
+
+class LessonPrepareRequest(BaseModel):
+    lesson: Lesson
+
+
+@app.post("/api/lesson/prepare")
+def lesson_prepare(req: LessonPrepareRequest) -> dict:
+    try:
+        return prepare_lesson(req.lesson, enforce_duration=True)
+    except (ValueError, FileNotFoundError, RuntimeError) as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.get("/api/lesson/timeline/{identifier}")
+def lesson_timeline(identifier: str) -> dict:
+    try:
+        return load_lesson(identifier)
+    except (ValueError, FileNotFoundError, OSError) as exc:
+        raise HTTPException(status_code=404, detail="Unknown prepared lesson") from exc
+
+
+@app.get("/api/lesson/media/{identifier}/{filename}")
+def lesson_media(identifier: str, filename: str) -> FileResponse:
+    if filename != "combined.wav" and not (
+        len(filename) == len("scene_00.wav") and filename.startswith("scene_")
+        and filename.endswith(".wav") and filename[6:8].isdigit()
+    ):
+        raise HTTPException(status_code=404, detail="Unknown audio")
+    try:
+        manifest = load_lesson(identifier)
+        if filename.startswith("scene_") and int(filename[6:8]) >= len(manifest["scenes"]):
+            raise ValueError("Unknown scene")
+        path = lesson_folder(identifier) / filename
+        if not path.is_file():
+            raise FileNotFoundError
+    except (ValueError, FileNotFoundError, OSError):
+        raise HTTPException(status_code=404, detail="Unknown audio") from None
+    return FileResponse(path, media_type="audio/wav", filename=filename,
+                        content_disposition_type="inline")
+
+
+@app.post("/api/lesson/export/{identifier}")
+def lesson_export(identifier: str) -> dict:
+    try:
+        return export_lesson(identifier)
+    except (ValueError, FileNotFoundError) as exc:
+        raise HTTPException(status_code=404, detail="Unknown or incomplete lesson") from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"MP4 export failed: {exc}") from exc
+
+
+@app.get("/api/lesson/video/{identifier}")
+def lesson_video(identifier: str) -> FileResponse:
+    try:
+        lesson_folder(identifier)
+        path = ROOT / "outputs" / "lessons" / f"{identifier}.mp4"
+        if not path.is_file():
+            raise FileNotFoundError
+    except (ValueError, FileNotFoundError):
+        raise HTTPException(status_code=404, detail="Export the lesson first") from None
+    return FileResponse(path, media_type="video/mp4", filename=f"blu_{identifier[:12]}.mp4")
