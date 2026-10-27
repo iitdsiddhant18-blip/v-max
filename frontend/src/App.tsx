@@ -1,7 +1,13 @@
 import { useState } from "react";
 import type { GenerateRequest, GenerateResponse, LanguageCode, Level } from "./types";
+import SamplePlayer, { ExportView } from "./SamplePlayer";
 
 export default function App() {
+  if (window.location.pathname === "/render") return <ExportView />;
+  return <MainApp />;
+}
+
+function MainApp() {
   const [topic, setTopic] = useState("How does a Python loop work?");
   const [level, setLevel] = useState<Level>("beginner");
   const [language, setLanguage] = useState<LanguageCode>("en");
@@ -34,7 +40,7 @@ export default function App() {
   return (
     <main className="mx-auto max-w-2xl p-6 font-sans">
       <h1 className="text-3xl font-bold">Blu Visual Teacher</h1>
-      <p className="mt-1 text-sm text-neutral-600">Phase 1a shell: sends the form to the backend.</p>
+      <p className="mt-1 text-sm text-neutral-600">Phase 1a form + Part 1b narrated sample.</p>
 
       <form onSubmit={onSubmit} className="mt-6 space-y-4">
         <label className="block">
@@ -114,6 +120,7 @@ export default function App() {
           </ol>
         </section>
       )}
+      <SamplePlayer />
     </main>
   );
 }

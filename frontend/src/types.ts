@@ -32,3 +32,37 @@ export interface GenerateResponse {
   source: "fallback" | "llm";
   lesson: Lesson;
 }
+
+// Part 1b has a separate, audio-derived timeline. Do not add timing fields to Scene.
+export type SampleLanguage = "en" | "hi";
+
+export interface TimedScene {
+  index: number;
+  start_seconds: number;
+  audio_seconds: number;
+  duration_seconds: number;
+  audio_url: string;
+}
+
+export interface SampleTimeline {
+  language: SampleLanguage;
+  voice: string;
+  sample_rate: number;
+  pause_seconds: number;
+  total_seconds: number;
+  audio_url: string;
+  lesson: Lesson;
+  scenes: TimedScene[];
+}
+
+export interface ExportResult {
+  video_url: string;
+  fps: number;
+  frames: number;
+  expected_duration_seconds: number;
+  duration_seconds: number;
+  width: number;
+  height: number;
+  video_codec: string;
+  audio_codec: string;
+}
