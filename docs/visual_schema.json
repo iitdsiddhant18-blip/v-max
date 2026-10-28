@@ -1,0 +1,1360 @@
+{
+  "$defs": {
+    "AlgorithmData": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "algorithm_state",
+          "default": "algorithm_state",
+          "title": "Kind",
+          "type": "string"
+        },
+        "algorithm": {
+          "enum": [
+            "hanoi",
+            "binary_search"
+          ],
+          "title": "Algorithm",
+          "type": "string"
+        },
+        "disks": {
+          "default": 3,
+          "maximum": 4,
+          "minimum": 2,
+          "title": "Disks",
+          "type": "integer"
+        },
+        "values": {
+          "default": [
+            1,
+            3,
+            5,
+            7,
+            9
+          ],
+          "items": {
+            "type": "integer"
+          },
+          "maxItems": 12,
+          "minItems": 1,
+          "title": "Values",
+          "type": "array"
+        },
+        "target": {
+          "default": 7,
+          "maximum": 10000,
+          "minimum": -10000,
+          "title": "Target",
+          "type": "integer"
+        },
+        "state_label_key": {
+          "pattern": "^[a-z][a-z0-9_]{0,39}$",
+          "title": "State Label Key",
+          "type": "string"
+        },
+        "pointer_keys": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_]{0,39}$",
+            "type": "string"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Pointer Keys",
+          "type": "array"
+        }
+      },
+      "required": [
+        "algorithm",
+        "state_label_key",
+        "pointer_keys"
+      ],
+      "title": "AlgorithmData",
+      "type": "object"
+    },
+    "Apparatus": {
+      "additionalProperties": false,
+      "properties": {
+        "entity_id": {
+          "pattern": "^[a-z][a-z0-9_]{0,39}$",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "shape": {
+          "enum": [
+            "beaker",
+            "test_tube",
+            "flask",
+            "cylinder",
+            "pipette",
+            "funnel"
+          ],
+          "title": "Shape",
+          "type": "string"
+        },
+        "volume_ml": {
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Volume Ml",
+          "type": "number"
+        },
+        "capacity_ml": {
+          "exclusiveMinimum": 0,
+          "maximum": 10000,
+          "title": "Capacity Ml",
+          "type": "number"
+        },
+        "solute_units": {
+          "default": 0,
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Solute Units",
+          "type": "number"
+        }
+      },
+      "required": [
+        "entity_id",
+        "shape",
+        "volume_ml",
+        "capacity_ml"
+      ],
+      "title": "Apparatus",
+      "type": "object"
+    },
+    "BeatAction": {
+      "additionalProperties": false,
+      "properties": {
+        "beat_index": {
+          "maximum": 7,
+          "minimum": 0,
+          "title": "Beat Index",
+          "type": "integer"
+        },
+        "op": {
+          "enum": [
+            "reveal",
+            "highlight",
+            "connect",
+            "trace_path",
+            "move_entity",
+            "pulse",
+            "zoom_region",
+            "plot_to_x",
+            "secant_to_tangent",
+            "set_state",
+            "pour",
+            "emphasize_term"
+          ],
+          "title": "Op",
+          "type": "string"
+        },
+        "target_ids": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_]{0,39}$",
+            "type": "string"
+          },
+          "maxItems": 4,
+          "minItems": 1,
+          "title": "Target Ids",
+          "type": "array"
+        },
+        "state_index": {
+          "anyOf": [
+            {
+              "maximum": 40,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "State Index"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "maximum": 10000,
+              "minimum": -10000,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        }
+      },
+      "required": [
+        "beat_index",
+        "op",
+        "target_ids"
+      ],
+      "title": "BeatAction",
+      "type": "object"
+    },
+    "ChartData": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "data_chart",
+          "default": "data_chart",
+          "title": "Kind",
+          "type": "string"
+        },
+        "chart": {
+          "default": "bar",
+          "enum": [
+            "bar",
+            "line",
+            "pie"
+          ],
+          "title": "Chart",
+          "type": "string"
+        },
+        "category_keys": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_]{0,39}$",
+            "type": "string"
+          },
+          "maxItems": 8,
+          "minItems": 1,
+          "title": "Category Keys",
+          "type": "array"
+        },
+        "series": {
+          "items": {
+            "$ref": "#/$defs/ChartSeries"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "title": "Series",
+          "type": "array"
+        },
+        "x_label_key": {
+          "pattern": "^[a-z][a-z0-9_]{0,39}$",
+          "title": "X Label Key",
+          "type": "string"
+        },
+        "y_label_key": {
+          "pattern": "^[a-z][a-z0-9_]{0,39}$",
+          "title": "Y Label Key",
+          "type": "string"
+        }
+      },
+      "required": [
+        "category_keys",
+        "series",
+        "x_label_key",
+        "y_label_key"
+      ],
+      "title": "ChartData",
+      "type": "object"
+    },
+    "ChartSeries": {
+      "additionalProperties": false,
+      "properties": {
+        "label_key": {
+          "pattern": "^[a-z][a-z0-9_]{0,39}$",
+          "title": "Label Key",
+          "type": "string"
+        },
+        "values": {
+          "items": {
+            "maximum": 10000,
+            "minimum": -10000,
+            "type": "number"
+          },
+          "maxItems": 8,
+          "minItems": 1,
+          "title": "Values",
+          "type": "array"
+        }
+      },
+      "required": [
+        "label_key",
+        "values"
+      ],
+      "title": "ChartSeries",
+      "type": "object"
+    },
+    "CodeData": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "code_trace",
+          "default": "code_trace",
+          "title": "Kind",
+          "type": "string"
+        },
+        "code": {
+          "maxLength": 1200,
+          "minLength": 1,
+          "title": "Code",
+          "type": "string"
+        },
+        "trace_mode": {
+          "default": "bounded",
+          "enum": [
+            "bounded",
+            "explanation"
+          ],
+          "title": "Trace Mode",
+          "type": "string"
+        },
+        "variables_label_key": {
+          "pattern": "^[a-z][a-z0-9_]{0,39}$",
+          "title": "Variables Label Key",
+          "type": "string"
+        },
+        "output_label_key": {
+          "pattern": "^[a-z][a-z0-9_]{0,39}$",
+          "title": "Output Label Key",
+          "type": "string"
+        },
+        "status_label_key": {
+          "pattern": "^[a-z][a-z0-9_]{0,39}$",
+          "title": "Status Label Key",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "variables_label_key",
+        "output_label_key",
+        "status_label_key"
+      ],
+      "title": "CodeData",
+      "type": "object"
+    },
+    "ComparisonData": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "comparison",
+            "table"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "column_keys": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_]{0,39}$",
+            "type": "string"
+          },
+          "maxItems": 3,
+          "minItems": 2,
+          "title": "Column Keys",
+          "type": "array"
+        },
+        "rows": {
+          "items": {
+            "items": {
+              "pattern": "^[a-z][a-z0-9_]{0,39}$",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "maxItems": 5,
+          "minItems": 1,
+          "title": "Rows",
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind",
+        "column_keys",
+        "rows"
+      ],
+      "title": "ComparisonData",
+      "type": "object"
+    },
+    "Entity": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-z][a-z0-9_]{0,39}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "part",
+            "input",
+            "output",
+            "process",
+            "quantity",
+            "state",
+            "event",
+            "object",
+            "context"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "label_key": {
+          "pattern": "^[a-z][a-z0-9_]{0,39}$",
+          "title": "Label Key",
+          "type": "string"
+        },
+        "anchor_id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9_]{0,39}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Anchor Id"
+        }
+      },
+      "required": [
+        "id",
+        "role",
+        "label_key"
+      ],
+      "title": "Entity",
+      "type": "object"
+    },
+    "ForceData": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "force_motion",
+          "default": "force_motion",
+          "title": "Kind",
+          "type": "string"
+        },
+        "mode": {
+          "default": "force",
+          "enum": [
+            "force",
+            "motion",
+            "circuit",
+            "wave"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "mass_kg": {
+          "default": 1,
+          "exclusiveMinimum": 0,
+          "maximum": 10000,
+          "title": "Mass Kg",
+          "type": "number"
+        },
+        "vectors": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Vector"
+          },
+          "maxItems": 6,
+          "title": "Vectors",
+          "type": "array"
+        },
+        "displacement_m": {
+          "default": 5,
+          "maximum": 10000,
+          "minimum": -10000,
+          "title": "Displacement M",
+          "type": "number"
+        },
+        "seconds": {
+          "default": 2,
+          "exclusiveMinimum": 0,
+          "maximum": 10000,
+          "title": "Seconds",
+          "type": "number"
+        },
+        "resistance_ohm": {
+          "default": 2,
+          "exclusiveMinimum": 0,
+          "maximum": 10000,
+          "title": "Resistance Ohm",
+          "type": "number"
+        },
+        "voltage_v": {
+          "default": 6,
+          "exclusiveMinimum": 0,
+          "maximum": 10000,
+          "title": "Voltage V",
+          "type": "number"
+        },
+        "amplitude": {
+          "default": 1,
+          "exclusiveMinimum": 0,
+          "maximum": 10000,
+          "title": "Amplitude",
+          "type": "number"
+        },
+        "frequency_hz": {
+          "default": 1,
+          "exclusiveMinimum": 0,
+          "maximum": 10000,
+          "title": "Frequency Hz",
+          "type": "number"
+        },
+        "schematic_label_key": {
+          "pattern": "^[a-z][a-z0-9_]{0,39}$",
+          "title": "Schematic Label Key",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schematic_label_key"
+      ],
+      "title": "ForceData",
+      "type": "object"
+    },
+    "FormulaData": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "formula",
+            "equation_balance"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "expression_key": {
+          "pattern": "^[a-z][a-z0-9_]{0,39}$",
+          "title": "Expression Key",
+          "type": "string"
+        },
+        "step_keys": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_]{0,39}$",
+            "type": "string"
+          },
+          "maxItems": 6,
+          "minItems": 1,
+          "title": "Step Keys",
+          "type": "array"
+        },
+        "linear_equation": {
+          "anyOf": [
+            {
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "maximum": 10000,
+                  "minimum": -10000,
+                  "type": "number"
+                },
+                {
+                  "maximum": 10000,
+                  "minimum": -10000,
+                  "type": "number"
+                },
+                {
+                  "maximum": 10000,
+                  "minimum": -10000,
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Linear Equation"
+        }
+      },
+      "required": [
+        "kind",
+        "expression_key",
+        "step_keys"
+      ],
+      "title": "FormulaData",
+      "type": "object"
+    },
+    "IllustrationData": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "labelled_illustration",
+          "default": "labelled_illustration",
+          "title": "Kind",
+          "type": "string"
+        },
+        "zoom": {
+          "default": "focused_part",
+          "enum": [
+            "none",
+            "focused_part"
+          ],
+          "title": "Zoom",
+          "type": "string"
+        }
+      },
+      "title": "IllustrationData",
+      "type": "object"
+    },
+    "Interval": {
+      "additionalProperties": false,
+      "properties": {
+        "start": {
+          "maximum": 10000,
+          "minimum": -10000,
+          "title": "Start",
+          "type": "number"
+        },
+        "end": {
+          "maximum": 10000,
+          "minimum": -10000,
+          "title": "End",
+          "type": "number"
+        },
+        "start_closed": {
+          "default": true,
+          "title": "Start Closed",
+          "type": "boolean"
+        },
+        "end_closed": {
+          "default": true,
+          "title": "End Closed",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "title": "Interval",
+      "type": "object"
+    },
+    "LabData": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "lab_process",
+          "default": "lab_process",
+          "title": "Kind",
+          "type": "string"
+        },
+        "apparatus": {
+          "items": {
+            "$ref": "#/$defs/Apparatus"
+          },
+          "maxItems": 4,
+          "minItems": 2,
+          "title": "Apparatus",
+          "type": "array"
+        },
+        "source_id": {
+          "pattern": "^[a-z][a-z0-9_]{0,39}$",
+          "title": "Source Id",
+          "type": "string"
+        },
+        "target_id": {
+          "pattern": "^[a-z][a-z0-9_]{0,39}$",
+          "title": "Target Id",
+          "type": "string"
+        },
+        "transfer_ml": {
+          "exclusiveMinimum": 0,
+          "maximum": 10000,
+          "title": "Transfer Ml",
+          "type": "number"
+        },
+        "illustration_label_key": {
+          "pattern": "^[a-z][a-z0-9_]{0,39}$",
+          "title": "Illustration Label Key",
+          "type": "string"
+        }
+      },
+      "required": [
+        "apparatus",
+        "source_id",
+        "target_id",
+        "transfer_ml",
+        "illustration_label_key"
+      ],
+      "title": "LabData",
+      "type": "object"
+    },
+    "MapData": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "concept_map",
+            "flow_process",
+            "generic_diagram"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "layout": {
+          "default": "row",
+          "enum": [
+            "row",
+            "tree",
+            "cycle"
+          ],
+          "title": "Layout",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "MapData",
+      "type": "object"
+    },
+    "NumberLineData": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "number_line",
+          "default": "number_line",
+          "title": "Kind",
+          "type": "string"
+        },
+        "minimum": {
+          "default": -3,
+          "maximum": 10000,
+          "minimum": -10000,
+          "title": "Minimum",
+          "type": "number"
+        },
+        "maximum": {
+          "default": 3,
+          "maximum": 10000,
+          "minimum": -10000,
+          "title": "Maximum",
+          "type": "number"
+        },
+        "points": {
+          "items": {
+            "maximum": 10000,
+            "minimum": -10000,
+            "type": "number"
+          },
+          "maxItems": 8,
+          "minItems": 1,
+          "title": "Points",
+          "type": "array"
+        },
+        "intervals": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Interval"
+          },
+          "maxItems": 3,
+          "title": "Intervals",
+          "type": "array"
+        },
+        "axis_label_key": {
+          "pattern": "^[a-z][a-z0-9_]{0,39}$",
+          "title": "Axis Label Key",
+          "type": "string"
+        }
+      },
+      "required": [
+        "points",
+        "axis_label_key"
+      ],
+      "title": "NumberLineData",
+      "type": "object"
+    },
+    "PlotData": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "function_plot",
+          "default": "function_plot",
+          "title": "Kind",
+          "type": "string"
+        },
+        "function": {
+          "enum": [
+            "polynomial",
+            "reciprocal",
+            "absolute",
+            "exponential",
+            "sine",
+            "cosine"
+          ],
+          "title": "Function",
+          "type": "string"
+        },
+        "coefficients": {
+          "default": [
+            0,
+            1
+          ],
+          "items": {
+            "maximum": 10000,
+            "minimum": -10000,
+            "type": "number"
+          },
+          "maxItems": 5,
+          "minItems": 1,
+          "title": "Coefficients",
+          "type": "array"
+        },
+        "scale": {
+          "default": 1,
+          "maximum": 10000,
+          "minimum": -10000,
+          "title": "Scale",
+          "type": "number"
+        },
+        "frequency": {
+          "default": 1,
+          "exclusiveMinimum": 0,
+          "maximum": 10000,
+          "title": "Frequency",
+          "type": "number"
+        },
+        "shift": {
+          "default": 0,
+          "maximum": 10000,
+          "minimum": -10000,
+          "title": "Shift",
+          "type": "number"
+        },
+        "offset": {
+          "default": 0,
+          "maximum": 10000,
+          "minimum": -10000,
+          "title": "Offset",
+          "type": "number"
+        },
+        "x_min": {
+          "default": -4,
+          "maximum": 10000,
+          "minimum": -10000,
+          "title": "X Min",
+          "type": "number"
+        },
+        "x_max": {
+          "default": 4,
+          "maximum": 10000,
+          "minimum": -10000,
+          "title": "X Max",
+          "type": "number"
+        },
+        "y_min": {
+          "default": -2,
+          "maximum": 10000,
+          "minimum": -10000,
+          "title": "Y Min",
+          "type": "number"
+        },
+        "y_max": {
+          "default": 10,
+          "maximum": 10000,
+          "minimum": -10000,
+          "title": "Y Max",
+          "type": "number"
+        },
+        "x_label_key": {
+          "pattern": "^[a-z][a-z0-9_]{0,39}$",
+          "title": "X Label Key",
+          "type": "string"
+        },
+        "y_label_key": {
+          "pattern": "^[a-z][a-z0-9_]{0,39}$",
+          "title": "Y Label Key",
+          "type": "string"
+        },
+        "curve_label_key": {
+          "pattern": "^[a-z][a-z0-9_]{0,39}$",
+          "title": "Curve Label Key",
+          "type": "string"
+        },
+        "point_xs": {
+          "default": [],
+          "items": {
+            "maximum": 10000,
+            "minimum": -10000,
+            "type": "number"
+          },
+          "maxItems": 6,
+          "title": "Point Xs",
+          "type": "array"
+        },
+        "tangent_x": {
+          "anyOf": [
+            {
+              "maximum": 10000,
+              "minimum": -10000,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tangent X"
+        },
+        "secant_x": {
+          "anyOf": [
+            {
+              "maximum": 10000,
+              "minimum": -10000,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Secant X"
+        },
+        "shade_interval": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "maximum": 10000,
+                  "minimum": -10000,
+                  "type": "number"
+                },
+                {
+                  "maximum": 10000,
+                  "minimum": -10000,
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Shade Interval"
+        }
+      },
+      "required": [
+        "function",
+        "x_label_key",
+        "y_label_key",
+        "curve_label_key"
+      ],
+      "title": "PlotData",
+      "type": "object"
+    },
+    "ReactionData": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "reaction_equation",
+          "default": "reaction_equation",
+          "title": "Kind",
+          "type": "string"
+        },
+        "reactants": {
+          "items": {
+            "$ref": "#/$defs/Species"
+          },
+          "maxItems": 4,
+          "minItems": 1,
+          "title": "Reactants",
+          "type": "array"
+        },
+        "products": {
+          "items": {
+            "$ref": "#/$defs/Species"
+          },
+          "maxItems": 4,
+          "minItems": 1,
+          "title": "Products",
+          "type": "array"
+        }
+      },
+      "required": [
+        "reactants",
+        "products"
+      ],
+      "title": "ReactionData",
+      "type": "object"
+    },
+    "Relationship": {
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "pattern": "^[a-z][a-z0-9_]{0,39}$",
+          "title": "Source",
+          "type": "string"
+        },
+        "target": {
+          "pattern": "^[a-z][a-z0-9_]{0,39}$",
+          "title": "Target",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "flow",
+            "causes",
+            "sequence",
+            "contains",
+            "exchange",
+            "comparison"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "label_key": {
+          "pattern": "^[a-z][a-z0-9_]{0,39}$",
+          "title": "Label Key",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source",
+        "target",
+        "kind",
+        "label_key"
+      ],
+      "title": "Relationship",
+      "type": "object"
+    },
+    "Species": {
+      "additionalProperties": false,
+      "properties": {
+        "formula": {
+          "maxLength": 40,
+          "pattern": "^(?:[A-Z][a-z]?[0-9]{0,2}){1,8}$",
+          "title": "Formula",
+          "type": "string"
+        },
+        "coefficient": {
+          "maximum": 20,
+          "minimum": 1,
+          "title": "Coefficient",
+          "type": "integer"
+        },
+        "label_key": {
+          "pattern": "^[a-z][a-z0-9_]{0,39}$",
+          "title": "Label Key",
+          "type": "string"
+        },
+        "state": {
+          "default": "unspecified",
+          "enum": [
+            "s",
+            "l",
+            "g",
+            "aq",
+            "unspecified"
+          ],
+          "title": "State",
+          "type": "string"
+        }
+      },
+      "required": [
+        "formula",
+        "coefficient",
+        "label_key"
+      ],
+      "title": "Species",
+      "type": "object"
+    },
+    "TimelineData": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "timeline",
+          "default": "timeline",
+          "title": "Kind",
+          "type": "string"
+        },
+        "events": {
+          "items": {
+            "$ref": "#/$defs/TimelineEvent"
+          },
+          "maxItems": 8,
+          "minItems": 2,
+          "title": "Events",
+          "type": "array"
+        }
+      },
+      "required": [
+        "events"
+      ],
+      "title": "TimelineData",
+      "type": "object"
+    },
+    "TimelineEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "entity_id": {
+          "pattern": "^[a-z][a-z0-9_]{0,39}$",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "time_label_key": {
+          "pattern": "^[a-z][a-z0-9_]{0,39}$",
+          "title": "Time Label Key",
+          "type": "string"
+        },
+        "order": {
+          "maximum": 12,
+          "minimum": 0,
+          "title": "Order",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "entity_id",
+        "time_label_key",
+        "order"
+      ],
+      "title": "TimelineEvent",
+      "type": "object"
+    },
+    "Vector": {
+      "additionalProperties": false,
+      "properties": {
+        "entity_id": {
+          "pattern": "^[a-z][a-z0-9_]{0,39}$",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "x": {
+          "maximum": 10000,
+          "minimum": -10000,
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "maximum": 10000,
+          "minimum": -10000,
+          "title": "Y",
+          "type": "number"
+        },
+        "unit": {
+          "enum": [
+            "N",
+            "m/s",
+            "m",
+            "m/s²"
+          ],
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id",
+        "x",
+        "y",
+        "unit"
+      ],
+      "title": "Vector",
+      "type": "object"
+    },
+    "VisualScene": {
+      "additionalProperties": false,
+      "properties": {
+        "scene_index": {
+          "maximum": 5,
+          "minimum": 0,
+          "title": "Scene Index",
+          "type": "integer"
+        },
+        "family": {
+          "enum": [
+            "concept_map",
+            "flow_process",
+            "generic_diagram",
+            "labelled_illustration",
+            "function_plot",
+            "number_line",
+            "data_chart",
+            "force_motion",
+            "formula",
+            "equation_balance",
+            "reaction_equation",
+            "lab_process",
+            "code_trace",
+            "algorithm_state",
+            "timeline",
+            "comparison",
+            "table"
+          ],
+          "title": "Family",
+          "type": "string"
+        },
+        "template_id": {
+          "anyOf": [
+            {
+              "enum": [
+                "human_digestive_system",
+                "human_heart",
+                "plant_cell",
+                "animal_cell",
+                "leaf_photosynthesis"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Template Id"
+        },
+        "entities": {
+          "items": {
+            "$ref": "#/$defs/Entity"
+          },
+          "maxItems": 12,
+          "minItems": 1,
+          "title": "Entities",
+          "type": "array"
+        },
+        "relationships": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Relationship"
+          },
+          "maxItems": 16,
+          "title": "Relationships",
+          "type": "array"
+        },
+        "display_text_en": {
+          "maxProperties": 64,
+          "minProperties": 1,
+          "patternProperties": {
+            "^[a-z][a-z0-9_]{0,39}$": {
+              "maxLength": 180,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "title": "Display Text En",
+          "type": "object"
+        },
+        "beat_actions": {
+          "items": {
+            "$ref": "#/$defs/BeatAction"
+          },
+          "maxItems": 32,
+          "minItems": 1,
+          "title": "Beat Actions",
+          "type": "array"
+        },
+        "data": {
+          "discriminator": {
+            "mapping": {
+              "algorithm_state": "#/$defs/AlgorithmData",
+              "code_trace": "#/$defs/CodeData",
+              "comparison": "#/$defs/ComparisonData",
+              "concept_map": "#/$defs/MapData",
+              "data_chart": "#/$defs/ChartData",
+              "equation_balance": "#/$defs/FormulaData",
+              "flow_process": "#/$defs/MapData",
+              "force_motion": "#/$defs/ForceData",
+              "formula": "#/$defs/FormulaData",
+              "function_plot": "#/$defs/PlotData",
+              "generic_diagram": "#/$defs/MapData",
+              "lab_process": "#/$defs/LabData",
+              "labelled_illustration": "#/$defs/IllustrationData",
+              "number_line": "#/$defs/NumberLineData",
+              "reaction_equation": "#/$defs/ReactionData",
+              "table": "#/$defs/ComparisonData",
+              "timeline": "#/$defs/TimelineData"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/MapData"
+            },
+            {
+              "$ref": "#/$defs/IllustrationData"
+            },
+            {
+              "$ref": "#/$defs/PlotData"
+            },
+            {
+              "$ref": "#/$defs/NumberLineData"
+            },
+            {
+              "$ref": "#/$defs/ChartData"
+            },
+            {
+              "$ref": "#/$defs/ForceData"
+            },
+            {
+              "$ref": "#/$defs/FormulaData"
+            },
+            {
+              "$ref": "#/$defs/ReactionData"
+            },
+            {
+              "$ref": "#/$defs/LabData"
+            },
+            {
+              "$ref": "#/$defs/CodeData"
+            },
+            {
+              "$ref": "#/$defs/AlgorithmData"
+            },
+            {
+              "$ref": "#/$defs/TimelineData"
+            },
+            {
+              "$ref": "#/$defs/ComparisonData"
+            }
+          ],
+          "title": "Data"
+        }
+      },
+      "required": [
+        "scene_index",
+        "family",
+        "entities",
+        "display_text_en",
+        "beat_actions",
+        "data"
+      ],
+      "title": "VisualScene",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "visual_schema_version": {
+      "const": 2,
+      "default": 2,
+      "title": "Visual Schema Version",
+      "type": "integer"
+    },
+    "source_lesson_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Source Lesson Id",
+      "type": "string"
+    },
+    "scenes": {
+      "items": {
+        "$ref": "#/$defs/VisualScene"
+      },
+      "maxItems": 6,
+      "minItems": 3,
+      "title": "Scenes",
+      "type": "array"
+    }
+  },
+  "required": [
+    "source_lesson_id",
+    "scenes"
+  ],
+  "title": "VisualPlan",
+  "type": "object"
+}

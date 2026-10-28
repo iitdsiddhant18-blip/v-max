@@ -1,5 +1,7 @@
 import type { SampleTimeline, Scene } from "./types";
 import DynamicSceneContent, { GeneratedHeading } from "./DynamicSceneContent";
+import VisualDispatcher from "./visuals/VisualDispatcher";
+import {fitText} from "./visuals/textLayout";
 
 function clamp(value: number, minimum = 0, maximum = 1): number {
   return Math.max(minimum, Math.min(maximum, value));
@@ -137,6 +139,12 @@ export default function SceneCanvas({ timeline, time }: {
   const cue = entry.cues?.find(c => local >= c.start_seconds && local < c.end_seconds)
     || entry.cues?.[entry.cues.length - 1];
   const cueProgress = cue ? clamp((local - cue.start_seconds) / Math.max(.001, cue.end_seconds - cue.start_seconds)) : 0;
+  const richSpec=timeline.visual_plan?.scenes[index];
+  const richLabels=timeline.visual_labels?.[index];
+  // Old cached hooks may have multiple sentence cues; the visual hook is one
+  // semantic beat in every language. Preserve their audio without losing focus.
+  const beat=scene.type==='title_card'?0:Math.max(0,entry.cues?.indexOf(cue!) ?? 0);
+  const richCaption=richSpec?fitText(cue?.text||scene.narration,1120,24,3):null;
   const captions = wrapWords(timeline.kind === "generated" ? cue?.text || scene.narration : scene.narration,
     timeline.kind === "generated" ? 78 : 60);
 
@@ -148,18 +156,21 @@ export default function SceneCanvas({ timeline, time }: {
       <rect width="1280" height="720" fill="#101f3d" />
       <rect x="0" y="0" width={1280 * clamp(t / timeline.total_seconds)} height="10" fill="#ffca63" />
       <text x="80" y="94" fill="#ffcf68" fontSize="26" fontWeight="700">BLU VISUAL TEACHER</text>
-      {scene.type !== "title_card" && (
+      {(scene.type !== "title_card" || richSpec) && (
         timeline.kind === "generated" ? <GeneratedHeading heading={scene.heading} />
           : <text x="85" y="152" fill="white" fontSize="42" fontWeight="700">{scene.heading}</text>
       )}
-      {timeline.kind === "generated"
+      {richSpec && richLabels
+        ? <VisualDispatcher spec={richSpec} labels={richLabels} computed={timeline.visual_computed?.[index]||{}}
+            beat={beat} progress={cueProgress}/>
+        : timeline.kind === "generated"
         ? <DynamicSceneContent scene={scene} semanticScene={semanticScene} progress={progress} cue={cue} cueProgress={cueProgress} language={timeline.language} />
         : <Content scene={scene} progress={progress} hindi={timeline.language === "hi"} />}
       <rect x="0" y="579" width="1280" height="141" fill="#071226" />
-      {captions.map((line, i) => (
+      {(richCaption?.lines||captions).map((line, i) => (
         <text key={i} data-caption={timeline.kind === "generated" ? "true" : undefined}
           x="640" y={622 + i * 35} textAnchor="middle"
-          fill="white" fontSize={timeline.kind === "generated" ? 24 : 27}>{line}</text>
+          fill="white" fontSize={richCaption?.size||(timeline.kind === "generated" ? 24 : 27)}>{line}</text>
       ))}
       <text x="1190" y="98" fill="#b9cbef" fontSize="22" textAnchor="end">
         {index + 1} / {timeline.scenes.length}

@@ -270,7 +270,9 @@ def test_corrupt_manifest_triggers_regeneration(prepared_english):
 def test_api_endpoints_safety(prepared_english, monkeypatch):
     source_id, eng_root, loc_root = prepared_english
     fake_tr = FakeTranslator()
-    fake_synth = make_fake_synthesize()
+    # Production HTTP timelines require 30–90s; short fixtures stay internal.
+    def fake_synth(text, destination, language):
+        make_pcm16_wav(destination, 3, 24000)
 
     # Patch LIVE_ROOT and LOCALIZED_ROOT for isolated test
     monkeypatch.setattr("backend.app.main.LIVE_ROOT", eng_root)

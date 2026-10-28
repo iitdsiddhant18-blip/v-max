@@ -6,7 +6,7 @@ our own components turn that data into visuals (hard rule: data, not code).
 """
 from typing import List, Literal, Optional
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator, model_serializer
 
 SceneType = Literal["title_card", "diagram", "code_walkthrough", "step_list"]
 Level = Literal["beginner", "intermediate"]
@@ -60,6 +60,13 @@ class GenerateRequest(BaseModel):
     level: Level = "beginner"
     language: LanguageCode = "en"
     target_seconds: int = Field(default=60, ge=30, le=90)
+    duration_mode: Literal['auto','manual'] = 'manual'
+
+    @model_serializer(mode='wrap')
+    def legacy_serialization(self, handler):
+        data=handler(self)
+        if 'duration_mode' not in self.model_fields_set:data.pop('duration_mode',None)
+        return data
 
     @field_validator("topic")
     @classmethod

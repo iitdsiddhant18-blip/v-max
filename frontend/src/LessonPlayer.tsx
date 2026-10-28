@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import SceneCanvas from "./SceneCanvas";
+import {ensureVisualFonts} from "./visuals/textLayout";
 import type { ExportResult, GeneratedLanguage, Lesson, SampleTimeline } from "./types";
 
 async function readJson<T>(response: Response): Promise<T> {
@@ -21,8 +22,10 @@ export function GeneratedExportView() {
       .then(readJson<SampleTimeline>)
       .then(async data => {
         if (!active) return;
+        await ensureVisualFonts();
+        const revision=new URLSearchParams(window.location.search).get("revision");
+        if(revision && data.render_id!==revision)throw new Error("Visual revision changed; export again");
         setTimeline(data);
-        await document.fonts.ready;
         requestAnimationFrame(() => { if (active) window.__BLU_READY__ = true; });
       })
       .catch(reason => { if (active) setError(String(reason)); });
@@ -50,8 +53,10 @@ export function LocalizedExportView() {
       .then(readJson<SampleTimeline>)
       .then(async data => {
         if (!active) return;
+        await ensureVisualFonts();
+        const revision=new URLSearchParams(window.location.search).get("revision");
+        if(revision && data.render_id!==revision)throw new Error("Visual revision changed; export again");
         setTimeline(data);
-        await document.fonts.ready;
         requestAnimationFrame(() => { if (active) window.__BLU_READY__ = true; });
       })
       .catch(reason => { if (active) setError(String(reason)); });
@@ -68,21 +73,23 @@ export function LocalizedExportView() {
 
 export function PreparedLessonView() {
   const identifier = new URLSearchParams(window.location.search).get("id") || "";
+  const requested=new URLSearchParams(window.location.search).get("language");
+  const language:GeneratedLanguage=requested==="hi"||requested==="kn"?requested:"en";
   const [prepared, setPrepared] = useState<SampleTimeline | null>(null);
   const [error, setError] = useState("");
   useEffect(() => {
     let active = true;
-    fetch(`/api/lesson/timeline/${encodeURIComponent(identifier)}`)
+    fetch(`/api/${language==="en"?"lesson":"localized"}/timeline/${encodeURIComponent(identifier)}`)
       .then(readJson<SampleTimeline>)
-      .then(data => { if (active) setPrepared(data); })
+      .then(async data => { await ensureVisualFonts(); if (active) setPrepared(data); })
       .catch(reason => { if (active) setError(String(reason)); });
     return () => { active = false; };
-  }, [identifier]);
+  }, [identifier,language]);
   return <main className="mx-auto max-w-4xl p-6 font-sans">
     <a href="/" className="text-blue-700 underline">Create another lesson</a>
     {prepared ? <>
       <h1 className="mt-4 text-3xl font-bold">{prepared.lesson.title}</h1>
-      <p className="mt-2 text-neutral-600">Prepared English lesson · {prepared.total_seconds.toFixed(1)} seconds</p>
+      <p className="mt-2 text-neutral-600">Prepared {language==="hi"?"Hindi":language==="kn"?"Kannada":"English"} lesson · {prepared.total_seconds.toFixed(1)} seconds</p>
       <LessonPlayer lesson={prepared.lesson} initialTimeline={prepared} />
     </> : <p role={error ? "alert" : undefined}>{error || "Loading prepared lesson..."}</p>}
   </main>;
@@ -104,6 +111,7 @@ export default function LessonPlayer({ lesson, initialTimeline, targetLanguage =
   const [video, setVideo] = useState<ExportResult | null>(null);
   const [error, setError] = useState("");
   const audio = useRef<HTMLAudioElement>(null);
+  const [diagramEnlarged,setDiagramEnlarged]=useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
 
   function takeAudioFocus() {
@@ -164,6 +172,7 @@ export default function LessonPlayer({ lesson, initialTimeline, targetLanguage =
           signal: abortCtrl.signal,
         });
         const data = await readJson<SampleTimeline>(response);
+        await ensureVisualFonts();
         if (abortCtrl.signal.aborted) return;
         setTimeline(data);
         setSourceLessonId(data.lesson_id || null);
@@ -200,6 +209,7 @@ export default function LessonPlayer({ lesson, initialTimeline, targetLanguage =
           signal: abortCtrl.signal,
         });
         const data = await readJson<SampleTimeline>(response);
+        await ensureVisualFonts();
         if (abortCtrl.signal.aborted) return;
         setTimeline(data);
         setCurrentLang(lang);
@@ -329,7 +339,14 @@ export default function LessonPlayer({ lesson, initialTimeline, targetLanguage =
         <span className="text-xs text-neutral-500">Voice: {timeline.voice}</span>
       </div>
 
-      <div className="overflow-hidden rounded-xl"><SceneCanvas timeline={timeline} time={time} /></div>
+      <div className="mb-2 md:hidden">
+        <button type="button" className="rounded border px-3 py-1 text-sm" aria-pressed={diagramEnlarged}
+          onClick={()=>setDiagramEnlarged(v=>!v)}>{diagramEnlarged?"Fit diagram":"Enlarge diagram"}</button>
+        {diagramEnlarged&&<span className="ml-2 text-sm text-neutral-600">Scroll across to see the whole diagram.</span>}
+      </div>
+      <div className="overflow-x-auto rounded-xl" data-diagram-scroll="true">
+        <div style={{minWidth:diagramEnlarged?900:undefined}}><SceneCanvas timeline={timeline} time={time} /></div>
+      </div>
 
       {currentScene && <div className="mt-3 md:hidden">
         <p className="font-semibold">{currentScene.heading}</p>
@@ -345,6 +362,10 @@ export default function LessonPlayer({ lesson, initialTimeline, targetLanguage =
               const [label, fact] = item.split(" :: ");
               return <li key={i}><strong>{label}</strong>{fact ? `: ${fact}` : ""}</li>;
             })}</ul>}
+          {timeline.visual_labels?.[currentIndex] && <ul className="mt-3 list-disc pl-5" aria-label={
+            currentLang==="hi"?"चित्र के नाम":currentLang==="kn"?"ಚಿತ್ರದ ಹೆಸರುಗಳು":"Diagram labels"}>
+            {Array.from(new Set(Object.values(timeline.visual_labels[currentIndex]))).map((text,i)=><li key={i}>{text}</li>)}
+          </ul>}
         </details>
       </div>}
 

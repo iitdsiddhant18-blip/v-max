@@ -25,6 +25,7 @@ export interface GenerateRequest {
   level: Level;
   language: LanguageCode;
   target_seconds: number;
+  duration_mode?: "auto" | "manual";
 }
 
 export interface GenerateResponse {
@@ -57,6 +58,12 @@ export interface NarrationCue {
 }
 
 export interface SampleTimeline {
+  visual_plan?: import("./visuals/contracts").VisualPlan;
+  visual_id?: string;
+  render_id?: string;
+  visual_source?: "llm" | "fallback";
+  visual_labels?: Record<string,string>[];
+  visual_computed?: import("./visuals/contracts").Computed[];
   kind?: "generated";
   lesson_id?: string;
   source_lesson_id?: string;

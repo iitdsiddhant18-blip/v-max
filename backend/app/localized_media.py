@@ -17,7 +17,7 @@ import wave
 from pathlib import Path
 from typing import Callable
 
-from .live import ID_PATTERN, LIVE_ROOT, BEAT_SEPARATOR, load_lesson, visual_beats
+from .live import ID_PATTERN, LIVE_ROOT, BEAT_SEPARATOR, load_lesson, visual_beats, lesson_id
 from .media import MODEL_PATH, PAUSE_SECONDS, ROOT, VOICES_PATH
 from .schema import Lesson
 from .subtitles import manifest_to_srt
@@ -92,7 +92,8 @@ def _valid_cached(folder: Path, identifier: str, expected_lang: str) -> dict | N
         return None
 
 
-def load_localized(identifier: str, *, root: Path = LOCALIZED_ROOT) -> dict:
+def load_localized(identifier: str, *, root: Path = LOCALIZED_ROOT,
+                   enforce_duration: bool = False) -> dict:
     folder = localized_folder(identifier, root)
     if not folder.is_dir():
         raise FileNotFoundError(f"Localized lesson folder not found for {identifier}")
@@ -102,7 +103,80 @@ def load_localized(identifier: str, *, root: Path = LOCALIZED_ROOT) -> dict:
     manifest = json.loads(timeline_path.read_text(encoding="utf-8"))
     if manifest.get("lesson_id") != identifier:
         raise ValueError("Corrupt manifest: lesson_id mismatch")
+    language = manifest.get("language")
+    if language not in ("hi", "kn"):
+        raise ValueError("Corrupt manifest: unsupported language")
+    source_id = manifest.get("source_lesson_id", "")
+    if not ID_PATTERN.fullmatch(source_id):
+        raise ValueError("Corrupt manifest: invalid English source ID")
+    english = Lesson.model_validate(manifest["semantic_lesson"])
+    translated = Lesson.model_validate(manifest["lesson"])
+    if english.language != "en" or lesson_id(english) != source_id:
+        raise ValueError("Corrupt manifest: wrong English source")
+    if translated.language != language or len(english.scenes) != len(translated.scenes):
+        raise ValueError("Corrupt manifest: translation mismatch")
+    for source, target in zip(english.scenes,translated.scenes):
+        if (source.type!=target.type or source.code!=target.code
+                or source.highlight_lines!=target.highlight_lines or len(source.items)!=len(target.items)):
+            raise ValueError("Corrupt manifest: translation topology mismatch")
+    for index,(source,entry) in enumerate(zip(english.scenes,manifest['scenes'])):
+        if source.type=='title_card':continue
+        expected=visual_beats(source,strict=True)
+        if len(expected)!=len(entry.get('cues',[])):raise ValueError('Corrupt manifest: beat count mismatch')
+        for beat,cue in zip(expected,entry['cues']):
+            if (cue.get('item_index')!=beat['item_index'] or cue.get('item_indices')!=beat['item_indices']
+                    or cue.get('highlight_lines')!=beat['highlight_lines']):
+                raise ValueError('Corrupt manifest: visual cue linkage mismatch')
+    if localized_id(source_id, language, translated) != identifier:
+        raise ValueError("Corrupt manifest: content hash mismatch")
+    if not _valid_cached(folder, identifier, language):
+        raise ValueError("Corrupt manifest: media or SRT missing")
+    if len(manifest["scenes"]) != len(translated.scenes):
+        raise ValueError("Corrupt manifest: wrong scene count")
+    _validate_timing(manifest, folder, enforce_duration=enforce_duration)
     return manifest
+
+
+def _validate_timing(manifest: dict, folder: Path, *, enforce_duration: bool) -> None:
+    total = manifest.get("total_seconds")
+    if not isinstance(total, (int, float)) or not math.isfinite(total):
+        raise ValueError("Corrupt manifest: nonfinite duration")
+    if enforce_duration and not 30 <= total <= 90:
+        raise ValueError("Corrupt manifest: duration must be 30–90s")
+    rate = manifest["sample_rate"]
+    cursor = 0
+    for index, entry in enumerate(manifest["scenes"]):
+        with wave.open(str(folder / f"scene_{index:02d}.wav"), "rb") as audio:
+            if (audio.getframerate(), audio.getnchannels(), audio.getsampwidth()) != (rate, 1, 2):
+                raise ValueError("Corrupt manifest: PCM format")
+            frames = audio.getnframes()
+        expected = (cursor / rate, frames / rate, (frames + round(PAUSE_SECONDS * rate)) / rate)
+        actual = tuple(entry.get(k, float("nan")) for k in
+                       ("start_seconds", "audio_seconds", "duration_seconds"))
+        if entry.get("index") != index or any(not math.isfinite(v) or abs(v-e) > 1e-6
+                                              for v, e in zip(actual, expected)):
+            raise ValueError("Corrupt manifest: scene/WAV timing mismatch")
+        end = 0.0
+        for cue in entry.get("cues", []):
+            start, stop = cue["start_seconds"], cue["end_seconds"]
+            if not all(math.isfinite(v) for v in (start, stop)) or abs(start-end) > 1e-6 or stop <= start:
+                raise ValueError("Corrupt manifest: invalid cue boundaries")
+            end = stop
+        if not entry.get("cues") or abs(end-frames/rate) > 1e-6:
+            raise ValueError("Corrupt manifest: cue/WAV mismatch")
+        scene=manifest['lesson']['scenes'][index]
+        facts=([scene['narration']] if scene['type']=='title_card'
+               else [item.partition(BEAT_SEPARATOR)[2] for item in scene['items']])
+        if [c['text'] for c in entry['cues']]!=facts:
+            raise ValueError('Corrupt manifest: spoken cue/content mismatch')
+        cursor += frames + round(PAUSE_SECONDS * rate)
+    with wave.open(str(folder / "combined.wav"), "rb") as audio:
+        if audio.getnframes() != cursor or audio.getframerate() != rate:
+            raise ValueError("Corrupt manifest: combined WAV mismatch")
+    if abs(total-cursor/rate) > 1e-6:
+        raise ValueError("Corrupt manifest: total/WAV duration mismatch")
+    if (folder / "subtitles.srt").read_text(encoding="utf-8") != manifest_to_srt(manifest):
+        raise ValueError("Corrupt manifest: subtitles/cue mismatch")
 
 
 def synthesize_kannada_batch(segments: list[dict], output_dir: Path) -> dict[str, int]:
@@ -178,14 +252,25 @@ def prepare_localized(
     else:
         raise ValueError("Invalid translator provided")
 
-    translated = translate_lesson(source_lesson, language, translate_fn)
+    try:
+        translated = translate_lesson(source_lesson, language, translate_fn)
+    finally:
+        if translator is None:
+            tr.unload()
 
     # Compute target cache ID
     identifier = localized_id(source_lesson_id, language, translated)
     folder = localized_folder(identifier, root)
     cached = _valid_cached(folder, identifier, language)
     if cached is not None:
-        return cached
+        try:
+            cached = load_localized(identifier, root=root, enforce_duration=enforce_duration)
+            if (cached["source_lesson_id"] != source_lesson_id
+                    or cached["lesson"] != translated.model_dump()):
+                raise ValueError("Cached source/content mismatch")
+            return cached
+        except (ValueError, KeyError, TypeError, OSError) as exc:
+            logger.warning("Localized cache invalidated %s: %s", identifier[:12], exc)
 
     staging_dir = Path(tempfile.mkdtemp(prefix=f"loc_{identifier[:8]}_", dir=root.parent))
     try:
@@ -325,6 +410,13 @@ def prepare_localized(
 
         total_seconds = round(cursor_frames / global_rate, 6)
 
+        # Validate BEFORE atomically publishing; never leave an invalid-duration
+        # target lesson looking ready after a failed request.
+        if enforce_duration and not (30.0 <= total_seconds <= 90.0):
+            raise ValueError(
+                f"Localized narration is {total_seconds:.2f}s; expected 30–90s."
+            )
+
         manifest = {
             "kind": "generated",
             "lesson_id": identifier,
@@ -353,13 +445,10 @@ def prepare_localized(
         # Atomic commit to cache folder
         folder.parent.mkdir(parents=True, exist_ok=True)
         if folder.exists():
-            shutil.rmtree(folder)
+            # Preserve corrupt/old artifacts for diagnosis, never erase user media.
+            import uuid
+            folder.rename(folder.with_name(identifier + ".invalid-" + uuid.uuid4().hex[:12]))
         staging_dir.rename(folder)
-
-        if enforce_duration and not (30.0 <= total_seconds <= 90.0):
-            raise ValueError(
-                f"Localized narration is {total_seconds:.2f}s; expected 30–90s."
-            )
 
         return manifest
     finally:

@@ -30,8 +30,8 @@ Set level in the JSON to match the requested audience level exactly (e.g. "begin
 Always start with a title_card hook and end with a step_list recap.
 Use diagram for processes, sequences and labelled relationships; use
 code_walkthrough ONLY when actual programming code helps explain the topic.
-Use step_list for ordered explanations. Do not force a code scene into biology,
-physics, history, mathematics or other non-programming subjects.
+Use step_list for ordered explanations. Code is appropriate only when the
+actual mechanism being taught is a program; never invent a simulation as a substitute.
 Every scene needs a clear heading and 1-2 short, accurate narration sentences.
 Narration is spoken aloud: do not put JSON, markdown, emojis, URLs or instructions
 to a computer in narration. Keep the language simple, concrete and teachable.
@@ -66,12 +66,10 @@ def make_messages(
         "Language of generated text and Lesson.language: en.\n"
         "Prefer a title card, then concrete explanation/example, then a recap.\n"
         "Every step_list and diagram scene MUST include 1 to 5 strings in the items array (never empty []).\n"
-        "Do not use code_walkthrough for science, biology, physics, history, chemistry or math topics.\n"
-        "The following are two demonstrations of selecting scene data; DO NOT reuse their topic:\n"
-        "Coding: title_card -> code_walkthrough (code: for i in range(3):\\n    print(i); highlight_lines: [1]) "
-        "-> diagram (items: ['i = 0','i = 1','i = 2']) -> step_list recap.\n"
-        "Science: title_card -> diagram (items: ['Sunlight','Leaf','Stored energy']) "
-        "-> step_list (items: ['Observe','Explain','Recap']) -> step_list recap."
+        "Select scenes from the teaching mechanism: objects and relationships, a concrete "
+        "worked example with a checked result, then a recap/check question.\n"
+        "Code is display data only and must directly explain an actual program.\n"
+        "For unfamiliar concepts, describe supported relationships accurately; never invent facts."
     )
     messages = [{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": task}]
     if repair_feedback is not None:

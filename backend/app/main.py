@@ -4,7 +4,7 @@ from typing import Literal
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel
 
 from .exporter import export_sample
@@ -12,6 +12,7 @@ from .media import CACHE_ROOT, ROOT, load_timeline, prepare_sample
 from .schema import GenerateRequest, GenerateResponse, Lesson
 from .live import LIVE_ROOT, lesson_folder, load_lesson, prepare_lesson, plan_timed_lesson as plan_lesson
 from .live_export import export_lesson
+from .visual_cache import attach_visual
 from .localized_media import LOCALIZED_ROOT, load_localized, localized_folder, prepare_localized
 from .localized_export import export_localized
 
@@ -100,7 +101,8 @@ class LessonPrepareRequest(BaseModel):
 @app.post("/api/lesson/prepare")
 def lesson_prepare(req: LessonPrepareRequest) -> dict:
     try:
-        return prepare_lesson(req.lesson, enforce_duration=True)
+        manifest=attach_visual(prepare_lesson(req.lesson, enforce_duration=True))
+        return {**manifest,'subtitle_url':f"/api/lesson/subtitles/{manifest['lesson_id']}"}
     except (ValueError, FileNotFoundError, RuntimeError) as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
@@ -108,7 +110,10 @@ def lesson_prepare(req: LessonPrepareRequest) -> dict:
 @app.get("/api/lesson/timeline/{identifier}")
 def lesson_timeline(identifier: str) -> dict:
     try:
-        return load_lesson(identifier)
+        from .live import _check_duration
+        manifest=load_lesson(identifier)
+        _check_duration(manifest)
+        return {**attach_visual(manifest),'subtitle_url':f'/api/lesson/subtitles/{identifier}'}
     except (ValueError, FileNotFoundError, OSError) as exc:
         raise HTTPException(status_code=404, detail="Unknown prepared lesson") from exc
 
@@ -144,15 +149,29 @@ def lesson_export(identifier: str) -> dict:
 
 
 @app.get("/api/lesson/video/{identifier}")
-def lesson_video(identifier: str) -> FileResponse:
+def lesson_video(identifier: str, revision: str | None = None) -> FileResponse:
     try:
         lesson_folder(identifier)
-        path = ROOT / "outputs" / "lessons" / f"{identifier}.mp4"
+        if revision is not None:lesson_folder(revision)
+        path = ROOT / "outputs" / "lessons" / f"{identifier}{'.'+revision if revision else ''}.mp4"
         if not path.is_file():
             raise FileNotFoundError
     except (ValueError, FileNotFoundError):
         raise HTTPException(status_code=404, detail="Export the lesson first") from None
     return FileResponse(path, media_type="video/mp4", filename=f"blu_{identifier[:12]}.mp4")
+
+
+@app.get('/api/lesson/subtitles/{identifier}')
+def english_subtitles(identifier: str) -> Response:
+    from .subtitles import manifest_to_srt
+    from .live import _check_duration
+    try:
+        manifest=load_lesson(identifier);_check_duration(manifest)
+        text=manifest_to_srt(manifest)
+    except (ValueError,FileNotFoundError,OSError):
+        raise HTTPException(status_code=404,detail='Unknown English subtitles') from None
+    return Response(text,media_type='text/plain; charset=utf-8',headers={
+        'Content-Disposition':f'attachment; filename="subtitles_{identifier[:12]}.srt"'})
 
 
 class LocalizedPrepareRequest(BaseModel):
@@ -163,7 +182,8 @@ class LocalizedPrepareRequest(BaseModel):
 @app.post("/api/localized/prepare")
 def localized_prepare(req: LocalizedPrepareRequest) -> dict:
     try:
-        return prepare_localized(req.source_lesson_id, req.language, enforce_duration=False)
+        result = prepare_localized(req.source_lesson_id, req.language, enforce_duration=True)
+        return attach_visual(result) if 'lesson' in result else result
     except (ValueError, FileNotFoundError, RuntimeError) as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
@@ -171,7 +191,7 @@ def localized_prepare(req: LocalizedPrepareRequest) -> dict:
 @app.get("/api/localized/timeline/{identifier}")
 def localized_timeline(identifier: str) -> dict:
     try:
-        return load_localized(identifier, root=LOCALIZED_ROOT)
+        return attach_visual(load_localized(identifier, root=LOCALIZED_ROOT, enforce_duration=True))
     except (ValueError, FileNotFoundError, OSError) as exc:
         raise HTTPException(status_code=404, detail="Unknown prepared localized lesson") from exc
 
@@ -220,10 +240,11 @@ def localized_export_endpoint(identifier: str) -> dict:
 
 
 @app.get("/api/localized/video/{identifier}")
-def localized_video(identifier: str) -> FileResponse:
+def localized_video(identifier: str, revision: str | None = None) -> FileResponse:
     try:
         localized_folder(identifier)
-        path = ROOT / "outputs" / "localized" / f"{identifier}.mp4"
+        if revision is not None:localized_folder(revision)
+        path = ROOT / "outputs" / "localized" / f"{identifier}{'.'+revision if revision else ''}.mp4"
         if not path.is_file():
             raise FileNotFoundError
     except (ValueError, FileNotFoundError):

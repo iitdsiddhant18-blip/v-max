@@ -1,152 +1,126 @@
-import { useRef, useState } from "react";
-import type { GenerateRequest, GenerateResponse, LanguageCode, Level } from "./types";
+import { useEffect, useRef, useState } from "react";
 import SamplePlayer, { ExportView } from "./SamplePlayer";
-import LessonPlayer, { GeneratedExportView, LocalizedExportView, PreparedLessonView } from "./LessonPlayer";
+import { GeneratedExportView, LocalizedExportView, PreparedLessonView } from "./LessonPlayer";
+import LandingHero from "./LandingHero";
+import StudioPage from "./StudioPage";
+import "./landing.css";
 
 export default function App() {
-  if (window.location.pathname === "/render") return <ExportView />;
-  if (window.location.pathname === "/render-lesson") return <GeneratedExportView />;
-  if (window.location.pathname === "/render-localized") return <LocalizedExportView />;
-  if (window.location.pathname === "/lesson") return <PreparedLessonView />;
-  return <MainApp />;
+  const path = window.location.pathname;
+
+  // Protected Phase 1-4 pure render routes: must never load 3D or marketing elements
+  if (path === "/render") return <ExportView />;
+  if (path === "/render-lesson") return <GeneratedExportView />;
+  if (path === "/render-localized") return <LocalizedExportView />;
+  if (path === "/lesson") return <PreparedLessonView />;
+
+  return <RouterMainApp initialRoute={path === "/studio" ? "studio" : "landing"} />;
 }
 
-function MainApp() {
-  const [topic, setTopic] = useState("How does a Python loop work?");
-  const [level, setLevel] = useState<Level>("beginner");
-  const [language, setLanguage] = useState<LanguageCode>("en");
-  const [seconds, setSeconds] = useState(60);
-  const [result, setResult] = useState<GenerateResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
+function RouterMainApp({ initialRoute }: { initialRoute: "landing" | "studio" }) {
+  const [route, setRoute] = useState<"landing" | "studio">(initialRoute);
   const [samplesOpen, setSamplesOpen] = useState(false);
-  const samplePanel = useRef<HTMLDivElement>(null);
+  const samplePanelRef = useRef<HTMLDivElement>(null);
 
-  function closeSamples() {
-    samplePanel.current?.querySelectorAll("audio").forEach(audio => audio.pause());
-    setSamplesOpen(false);
+  useEffect(() => {
+    // Handle browser back and forward buttons
+    const handlePopState = () => {
+      const currentPath = window.location.pathname;
+      setRoute(currentPath === "/studio" ? "studio" : "landing");
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  function navigateTo(target: "landing" | "studio") {
+    setRoute(target);
+    const targetUrl = target === "studio" ? "/studio" : "/";
+    if (window.location.pathname !== targetUrl) {
+      window.history.pushState({}, "", targetUrl);
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  async function onSubmit(e: React.SyntheticEvent) {
-    e.preventDefault();
-    closeSamples();
-    document.querySelectorAll("audio").forEach(audio => audio.pause());
-    setBusy(true);
-    setError(null);
-    const body: GenerateRequest = { topic, level, language, target_seconds: seconds };
-    try {
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (!res.ok) throw new Error(`Server returned ${res.status}`);
-      setResult((await res.json()) as GenerateResponse);
-    } catch (err) {
-      setResult(null);
-      setError(err instanceof Error ? err.message : "Request failed");
-    } finally {
-      setBusy(false);
-    }
+  function pauseAllAudio() {
+    document.querySelectorAll("audio").forEach((a) => a.pause());
+  }
+
+  function toggleSamples() {
+    pauseAllAudio();
+    setSamplesOpen((prev) => !prev);
   }
 
   return (
-    <main className="mx-auto max-w-2xl p-6 font-sans">
-      <h1 className="text-3xl font-bold">Blu Visual Teacher</h1>
-      <p className="mt-1 text-sm text-neutral-600">Local lessons with explanatory visuals and 30–90 seconds of English narration.</p>
-
-      <form onSubmit={onSubmit} className="mt-6 space-y-4">
-        <label className="block">
-          <span className="text-sm font-medium">Topic</span>
-          <input
-            className="mt-1 w-full rounded border p-2"
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
+    <main className="blu-app-root">
+      {route === "studio" ? (
+        <StudioPage
+          onBackHome={() => navigateTo("landing")}
+          onPlaybackStart={pauseAllAudio}
+        />
+      ) : (
+        <>
+          <LandingHero
+            onOpenStudio={() => navigateTo("studio")}
+            onOpenSample={() => {
+              setSamplesOpen(true);
+              document.getElementById("samples")?.scrollIntoView({ behavior: "smooth" });
+            }}
           />
-        </label>
-        <div className="grid grid-cols-3 gap-3">
-          <label className="block">
-            <span className="text-sm font-medium">Level</span>
-            <select
-              className="mt-1 w-full rounded border p-2"
-              value={level}
-              onChange={(e) => setLevel(e.target.value as Level)}
-            >
-              <option value="beginner">Beginner</option>
-              <option value="intermediate">Intermediate</option>
-            </select>
-          </label>
-          <label className="block">
-            <span className="text-sm font-medium">Language</span>
-            <select
-              className="mt-1 w-full rounded border p-2"
-              value={language}
-              onChange={(e) => setLanguage(e.target.value as LanguageCode)}
-            >
-              <option value="en">English</option>
-              <option value="hi">हिन्दी</option>
-              <option value="kn">ಕನ್ನಡ</option>
-            </select>
-          </label>
-          <label className="block">
-            <span className="text-sm font-medium">Length</span>
-            <select
-              className="mt-1 w-full rounded border p-2"
-              value={seconds}
-              onChange={(e) => setSeconds(Number(e.target.value))}
-            >
-              <option value={30}>30 s</option>
-              <option value={60}>60 s</option>
-              <option value={90}>90 s</option>
-            </select>
-          </label>
-        </div>
-        <button
-          type="submit"
-          disabled={busy}
-          className="rounded bg-amber-400 px-5 py-2 font-medium disabled:opacity-50"
-        >
-          {busy ? "Planning and timing the narration..." : "Create lesson"}
-        </button>
-      </form>
 
-      {error && (
-        <p role="alert" className="mt-4 rounded bg-red-100 p-3 text-red-800">
-          {error}
-        </p>
-      )}
+          {/* ──────────────── Sample Lessons Section ──────────────── */}
+          <section id="samples" className="blu-section" aria-label="Sample interactive lessons">
+            <h2 className="blu-section-title">Explore Sample Visual Lessons</h2>
+            <p className="blu-section-subtitle">
+              Interactive demonstrations of speech-synchronized visual diagrams in English and Hindi.
+            </p>
 
-      {result && (
-        <section className="mt-6" data-testid="result">
-          <h2 className="text-xl font-bold">{result.lesson.title}</h2>
-          <p className="text-sm text-neutral-600">
-            source: {result.source} | requested language: {result.request.language}
-          </p>
-          <ol className="mt-3 list-decimal space-y-2 pl-5">
-            {result.lesson.scenes.map((s, i) => (
-              <li key={i}>
-                <span className="font-medium">{s.heading}</span>{" "}
-                <span className="text-xs text-neutral-500">({s.type})</span>
-                <div className="text-sm text-neutral-700">{s.narration}</div>
-              </li>
-            ))}
-          </ol>
-          {result.source === "llm"
-            ? <LessonPlayer key={JSON.stringify(result.lesson)} lesson={result.lesson} targetLanguage={language} onPlaybackStart={closeSamples} />
-            : <p role="alert" className="mt-4 rounded bg-amber-100 p-3">
-              The local planner could not produce a complete timed lesson. This is a generic study outline;
-              check Ollama and try again before preparing a video.
-            </p>}
-        </section>
+            <div style={{ textAlign: "center", marginBottom: 24 }}>
+              <button
+                type="button"
+                className="blu-secondary-btn"
+                aria-expanded={samplesOpen}
+                onClick={toggleSamples}
+                id="toggle-samples-btn"
+              >
+                <span>{samplesOpen ? "Hide Sample Player ▲" : "Launch Interactive Sample Player ▼"}</span>
+              </button>
+            </div>
+
+            {samplesOpen && (
+              <div
+                ref={samplePanelRef}
+                className="blu-studio-card"
+                style={{ padding: 28 }}
+              >
+                <SamplePlayer />
+              </div>
+            )}
+          </section>
+
+          {/* ──────────────── Footer ──────────────── */}
+          <footer
+            style={{
+              marginTop: 90,
+              paddingTop: 32,
+              borderTop: "1px solid var(--cream-border)",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: 16,
+              color: "var(--ink-500)",
+              fontSize: 13.5,
+            }}
+          >
+            <div>
+              <strong>Blu Visual Teacher</strong> · Offline AI-Powered Animated Learning
+            </div>
+            <div>
+              Developed by <strong>Team V-MAX</strong> for Hackathon Innovation
+            </div>
+          </footer>
+        </>
       )}
-      <section className="mt-10 border-t pt-5">
-        <button className="text-sm text-blue-800 underline" aria-expanded={samplesOpen}
-          onClick={() => {
-            document.querySelectorAll("audio").forEach(audio => audio.pause());
-            setSamplesOpen(!samplesOpen);
-          }}>Legacy fixed Python-loop samples — English/Hindi short demo</button>
-        {samplesOpen && <div ref={samplePanel}><SamplePlayer /></div>}
-      </section>
     </main>
   );
 }

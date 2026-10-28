@@ -1,0 +1,978 @@
+:root {
+  color-scheme: light;
+  --cream-bg: #fcf9f0;
+  --cream-card: #ffffff;
+  --cream-border: #ede4d1;
+  --cream-accent: #fff4d1;
+  
+  --ink-900: #101623;
+  --ink-700: #374151;
+  --ink-500: #64748b;
+  
+  --gold-500: #f6c63c;
+  --gold-600: #e5b329;
+  --gold-dark: #b88713;
+  
+  --blue-500: #38bdf8;
+  --blue-600: #0284c7;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--cream-bg);
+  background-image: radial-gradient(circle at 18% 12%, rgba(254, 243, 199, 0.7) 0%, transparent 45%),
+                    radial-gradient(circle at 85% 25%, rgba(253, 230, 138, 0.45) 0%, transparent 50%),
+                    radial-gradient(circle at 50% 85%, rgba(254, 240, 138, 0.3) 0%, transparent 60%);
+  color: var(--ink-900);
+  font-family: "Noto Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.blu-app-root {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 32px 80px;
+}
+
+/* ────────────────────────────────────────────────────────────
+   1. Top Navigation Bar
+   ──────────────────────────────────────────────────────────── */
+.blu-topbar {
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.blu-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--ink-900);
+  font-size: 22px;
+  font-weight: 850;
+  text-decoration: none;
+  letter-spacing: -0.035em;
+}
+
+.blu-brand-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #fde047 0%, #f59e0b 100%);
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+  font-size: 18px;
+  color: #1c1917;
+}
+
+.blu-topbar nav {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.blu-mobile-nav-toggle {
+  display: none;
+  background: transparent;
+  border: 1.5px solid var(--cream-border);
+  border-radius: 10px;
+  font-size: 18px;
+  padding: 6px 12px;
+  cursor: pointer;
+  color: var(--ink-900);
+}
+
+.blu-topbar nav a {
+  text-decoration: none;
+  color: var(--ink-700);
+  font-size: 14.5px;
+  font-weight: 600;
+  transition: color 0.15s ease;
+}
+
+.blu-topbar nav a:hover {
+  color: var(--ink-900);
+}
+
+.blu-topbar-action {
+  padding: 10px 22px;
+  border: 1.5px solid rgba(16, 22, 35, 0.85);
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 13.5px;
+  color: var(--ink-900);
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+}
+
+.blu-topbar-action:hover {
+  background: var(--ink-900);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(16, 22, 35, 0.15);
+}
+
+/* ────────────────────────────────────────────────────────────
+   2. Reference-Inspired Asymmetric Hero
+   ──────────────────────────────────────────────────────────── */
+.blu-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 40px;
+  min-height: 640px;
+  padding: 56px 48px 48px 56px;
+  background: #ffffff;
+  border: 1px solid var(--cream-border);
+  border-radius: 36px;
+  box-shadow: 0 20px 60px rgba(184, 155, 90, 0.12);
+  overflow: hidden;
+}
+
+/* Subtle background radiance inside hero */
+.blu-hero::before {
+  content: "";
+  position: absolute;
+  top: -80px;
+  right: -60px;
+  width: 580px;
+  height: 580px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(254, 240, 138, 0.45) 0%, rgba(255, 255, 255, 0) 70%);
+  pointer-events: none;
+}
+
+.blu-hero-copy {
+  position: relative;
+  z-index: 2;
+}
+
+.blu-hero-sparkle {
+  color: #eab308;
+  font-size: 20px;
+  display: inline-block;
+  margin-bottom: 8px;
+  animation: blu-pulse 3s infinite ease-in-out;
+}
+
+.blu-hero h1 {
+  font-size: clamp(40px, 4.4vw, 64px);
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  font-weight: 900;
+  color: var(--ink-900);
+  margin: 12px 0 20px;
+}
+
+.blu-headline-accent {
+  position: relative;
+  display: inline-block;
+  background: linear-gradient(120deg, #101623 0%, #b45309 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.blu-hero-copy > p {
+  max-width: 500px;
+  font-size: 17.5px;
+  line-height: 1.65;
+  color: var(--ink-500);
+  margin: 0 0 32px;
+}
+
+.blu-hero-cta-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.blu-primary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 34px;
+  background: linear-gradient(180deg, #fde047 0%, #f6c63c 100%);
+  color: #1a1a1a;
+  border-radius: 9999px;
+  font-weight: 800;
+  font-size: 15px;
+  text-decoration: none;
+  border: 1px solid rgba(217, 119, 6, 0.3);
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+
+.blu-primary-btn:hover {
+  background: linear-gradient(180deg, #fef08a 0%, #ebb324 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(245, 158, 11, 0.45);
+}
+
+.blu-secondary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 15px 26px;
+  background: #ffffff;
+  color: var(--ink-700);
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 14.5px;
+  text-decoration: none;
+  border: 1px solid var(--cream-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.blu-secondary-btn:hover {
+  background: var(--cream-bg);
+  color: var(--ink-900);
+  border-color: #d1c4a5;
+  transform: translateY(-1px);
+}
+
+/* Hand-drawn golden curved arrow pointing from CTA */
+.blu-curved-arrow {
+  position: absolute;
+  top: 52px;
+  left: 200px;
+  width: 58px;
+  height: 38px;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+/* Truthful Capability Pill Badges (replaces fake user statistics) */
+.blu-pill-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 48px;
+}
+
+.blu-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  padding: 10px 18px;
+  background: #fefce8;
+  border: 1px solid #fef08a;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 750;
+  color: #854d0e;
+  box-shadow: 0 2px 6px rgba(234, 179, 8, 0.08);
+}
+
+.blu-pill-badge .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #eab308;
+}
+
+/* ────────────────────────────────────────────────────────────
+   3. Robot Artwork & Orbital Halo
+   ──────────────────────────────────────────────────────────── */
+.blu-hero-art {
+  position: relative;
+  min-height: 520px;
+  display: grid;
+  place-items: center;
+}
+
+/* Soft golden backlight halo */
+.blu-hero-halo {
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 45% 45%, #fef08a 0%, #fde047 35%, rgba(254, 240, 138, 0.2) 70%, transparent 100%);
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+/* Hairline orbital rings looping around the robot */
+.blu-orbit-svg {
+  position: absolute;
+  width: 110%;
+  height: 110%;
+  top: -5%;
+  left: -5%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.blu-robot-3d {
+  position: relative;
+  width: 100%;
+  height: 500px;
+  z-index: 2;
+  cursor: grab;
+}
+
+.blu-robot-3d:active {
+  cursor: grabbing;
+}
+
+/* Floating informative capability chips around the robot */
+.blu-float-chip {
+  position: absolute;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  color: var(--ink-700);
+  border: 1px solid #f3e8d2;
+  border-radius: 9999px;
+  padding: 7px 14px;
+  font-weight: 750;
+  font-size: 11.5px;
+  letter-spacing: -0.01em;
+  box-shadow: 0 8px 20px rgba(180, 145, 60, 0.12);
+  white-space: nowrap;
+  pointer-events: none;
+  animation: blu-float 6s infinite ease-in-out;
+}
+
+.blu-chip-1 { top: 12%; left: 4%; animation-delay: 0s; }
+.blu-chip-2 { top: 16%; right: 2%; animation-delay: 1.5s; }
+.blu-chip-3 { top: 48%; left: -2%; animation-delay: 3s; }
+.blu-chip-4 { top: 46%; right: -4%; animation-delay: 4.5s; }
+.blu-chip-5 { bottom: 8%; left: 8%; animation-delay: 2s; }
+.blu-chip-6 { bottom: 12%; right: 8%; animation-delay: 3.5s; }
+
+/* ────────────────────────────────────────────────────────────
+   4. Hero Bottom Cards & Strip
+   ──────────────────────────────────────────────────────────── */
+.blu-hero-bottom-bar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 18px;
+  padding-top: 24px;
+  border-top: 1px solid var(--cream-border);
+}
+
+.blu-bottom-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  background: #ffffff;
+  border: 1.5px solid var(--cream-border);
+  border-radius: 9999px;
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--ink-900);
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
+
+.blu-bottom-cta:hover {
+  border-color: var(--gold-500);
+  background: #fffbeb;
+  transform: translateY(-1px);
+}
+
+.blu-sample-glass-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  max-width: 440px;
+  padding: 12px 18px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(234, 223, 202, 0.8);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(180, 145, 60, 0.1);
+}
+
+.blu-sample-glass-card p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ink-500);
+}
+
+.blu-sample-glass-card button {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  background: #fef08a;
+  border: 1px solid #fde047;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #713f12;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.blu-sample-glass-card button:hover {
+  background: #fde047;
+}
+
+/* ────────────────────────────────────────────────────────────
+   5. Static SVG/CSS Fallback Robot
+   ──────────────────────────────────────────────────────────── */
+.blu-robot-fallback {
+  position: relative;
+  width: 280px;
+  height: 420px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.blu-fallback-glow {
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fde047 0%, rgba(253, 224, 71, 0) 70%);
+  opacity: 0.6;
+  z-index: 0;
+}
+
+.blu-fallback-antenna {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+}
+
+.blu-fallback-sphere {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #f59e0b;
+  box-shadow: 0 0 12px #f59e0b;
+}
+
+.blu-fallback-stem {
+  width: 5px;
+  height: 22px;
+  background: #d97706;
+}
+
+.blu-fallback-head {
+  position: relative;
+  width: 210px;
+  height: 160px;
+  background: #facc15;
+  border-radius: 80px 80px 70px 70px;
+  box-shadow: 0 12px 24px rgba(180, 130, 20, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.blu-fallback-ear {
+  position: absolute;
+  width: 24px;
+  height: 44px;
+  background: #38bdf8;
+  border-radius: 8px;
+}
+.blu-fallback-ear.left { left: -12px; }
+.blu-fallback-ear.right { right: -12px; }
+
+.blu-fallback-visor {
+  width: 154px;
+  height: 104px;
+  background: #0f172a;
+  border-radius: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  padding: 0 12px;
+}
+
+.blu-fallback-eye {
+  position: relative;
+  width: 38px;
+  height: 48px;
+  background: #38bdf8;
+  border-radius: 50%;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.8);
+  display: grid;
+  place-items: center;
+}
+
+.blu-fallback-pupil {
+  width: 20px;
+  height: 26px;
+  background: #090d16;
+  border-radius: 50%;
+}
+
+.blu-fallback-glint {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 8px;
+  height: 8px;
+  background: #ffffff;
+  border-radius: 50%;
+}
+
+.blu-fallback-body {
+  position: relative;
+  width: 160px;
+  height: 110px;
+  background: #eab308;
+  border-radius: 40px;
+  margin-top: -10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.blu-fallback-chest {
+  width: 80px;
+  height: 28px;
+  background: #ffffff;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.blu-fallback-books {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.blu-fallback-book {
+  width: 110px;
+  height: 12px;
+  border-radius: 3px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+.blu-fallback-book.blue { background: #2563eb; }
+.blu-fallback-book.white { background: #ffffff; width: 104px; }
+.blu-fallback-book.red { background: #dc2626; width: 98px; }
+
+.blu-fallback-base-books {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.blu-fallback-floor-book {
+  height: 16px;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+}
+.blu-fallback-floor-book.gray { width: 180px; background: #64748b; }
+.blu-fallback-floor-book.dark { width: 210px; background: #334155; }
+
+/* ────────────────────────────────────────────────────────────
+   6. Informational Sections Below Hero
+   ──────────────────────────────────────────────────────────── */
+.blu-section {
+  margin-top: 72px;
+}
+
+.blu-section-title {
+  text-align: center;
+  font-size: clamp(28px, 3.2vw, 42px);
+  letter-spacing: -0.04em;
+  font-weight: 850;
+  color: var(--ink-900);
+  margin-bottom: 12px;
+}
+
+.blu-section-subtitle {
+  text-align: center;
+  font-size: 16px;
+  color: var(--ink-500);
+  max-width: 600px;
+  margin: 0 auto 40px;
+  line-height: 1.6;
+}
+
+.blu-how-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.blu-how-card {
+  padding: 32px 28px;
+  background: #ffffff;
+  border: 1px solid var(--cream-border);
+  border-radius: 24px;
+  box-shadow: 0 8px 24px rgba(184, 155, 90, 0.06);
+  transition: all 0.2s ease;
+}
+
+.blu-how-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 32px rgba(184, 155, 90, 0.12);
+  border-color: #d1c4a5;
+}
+
+.blu-how-num {
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--gold-dark);
+  margin-bottom: 14px;
+  display: inline-block;
+  padding: 4px 10px;
+  background: #fefce8;
+  border-radius: 8px;
+}
+
+.blu-how-card h3 {
+  font-size: 20px;
+  font-weight: 800;
+  margin: 0 0 10px;
+  color: var(--ink-900);
+}
+
+.blu-how-card p {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--ink-500);
+}
+
+.blu-lang-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.blu-lang-card {
+  padding: 24px;
+  background: #ffffff;
+  border: 1px solid var(--cream-border);
+  border-radius: 20px;
+  text-align: center;
+}
+
+.blu-lang-script {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--ink-900);
+  margin-bottom: 6px;
+}
+
+.blu-lang-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--gold-dark);
+}
+
+.blu-lang-desc {
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--ink-500);
+  line-height: 1.5;
+}
+
+/* ────────────────────────────────────────────────────────────
+   7. Dedicated Lesson Studio Page Styles
+   ──────────────────────────────────────────────────────────── */
+.blu-studio-container {
+  max-width: 1080px;
+  margin: 20px auto 0;
+}
+
+.blu-studio-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.blu-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 750;
+  color: var(--ink-700);
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid var(--cream-border);
+  transition: all 0.15s ease;
+}
+
+.blu-back-link:hover {
+  background: #ffffff;
+  color: var(--ink-900);
+  transform: translateX(-2px);
+}
+
+.blu-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #166534;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 6px 14px;
+  border-radius: 9999px;
+}
+
+.blu-status-badge.offline {
+  color: #991b1b;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.blu-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+}
+.blu-status-badge.offline .blu-status-dot {
+  background: #ef4444;
+}
+
+.blu-studio-card {
+  padding: 36px 40px;
+  background: #ffffff;
+  border: 1px solid var(--cream-border);
+  border-radius: 28px;
+  box-shadow: 0 16px 48px rgba(184, 155, 90, 0.08);
+}
+
+.blu-studio-card h2 {
+  font-size: 28px;
+  font-weight: 850;
+  margin: 0 0 6px;
+  letter-spacing: -0.03em;
+}
+
+.blu-studio-subtitle {
+  font-size: 14.5px;
+  color: var(--ink-500);
+  margin: 0 0 28px;
+}
+
+.blu-form-group {
+  margin-bottom: 24px;
+}
+
+.blu-form-label {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 750;
+  color: var(--ink-900);
+  margin-bottom: 8px;
+}
+
+.blu-textarea {
+  width: 100%;
+  min-height: 90px;
+  padding: 14px 16px;
+  border: 1.5px solid var(--cream-border);
+  border-radius: 16px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ink-900);
+  background: #fafaf9;
+  resize: vertical;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.blu-textarea:focus {
+  outline: none;
+  border-color: var(--gold-500);
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(246, 198, 60, 0.2);
+}
+
+.blu-controls-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.blu-select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--cream-border);
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-900);
+  background: #fafaf9;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.blu-select:focus {
+  outline: none;
+  border-color: var(--gold-500);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(246, 198, 60, 0.2);
+}
+
+.blu-studio-submit-btn {
+  width: 100%;
+  padding: 16px 24px;
+  background: linear-gradient(180deg, #fde047 0%, #f6c63c 100%);
+  color: #1a1a1a;
+  border: 1px solid rgba(217, 119, 6, 0.3);
+  border-radius: 16px;
+  font-weight: 800;
+  font-size: 15.5px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.3);
+  transition: all 0.2s ease;
+}
+
+.blu-studio-submit-btn:hover:not(:disabled) {
+  background: linear-gradient(180deg, #fef08a 0%, #ebb324 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(245, 158, 11, 0.4);
+}
+
+.blu-studio-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ────────────────────────────────────────────────────────────
+   8. Responsive Media Queries
+   ──────────────────────────────────────────────────────────── */
+@media (max-width: 1080px) {
+  .blu-hero {
+    grid-template-columns: 1fr;
+    padding: 44px 32px 36px;
+    gap: 32px;
+  }
+  .blu-hero-art {
+    min-height: 420px;
+  }
+  .blu-robot-3d {
+    height: 420px;
+  }
+  .blu-hero-bottom-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .blu-sample-glass-card {
+    max-width: 100%;
+    width: 100%;
+  }
+  .blu-controls-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .blu-app-root {
+    padding: 0 16px 48px;
+  }
+  .blu-mobile-nav-toggle {
+    display: block;
+  }
+  .blu-topbar nav {
+    display: none;
+    position: absolute;
+    top: 80px;
+    left: 16px;
+    right: 16px;
+    background: #ffffff;
+    border: 1.5px solid var(--cream-border);
+    border-radius: 20px;
+    padding: 20px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+    z-index: 100;
+  }
+  .blu-topbar nav.open {
+    display: flex;
+  }
+  .blu-hero {
+    border-radius: 24px;
+    padding: 32px 20px 24px;
+  }
+  .blu-hero h1 {
+    font-size: 36px;
+  }
+  .blu-curved-arrow {
+    display: none;
+  }
+  .blu-float-chip {
+    font-size: 10px;
+    padding: 5px 10px;
+  }
+  .blu-how-grid, .blu-lang-grid {
+    grid-template-columns: 1fr;
+  }
+  .blu-studio-card {
+    padding: 24px 18px;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────
+   9. Accessibility: Reduced Motion
+   ──────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .blu-float-chip,
+  .blu-hero-sparkle {
+    animation: none !important;
+  }
+  .blu-primary-btn,
+  .blu-secondary-btn,
+  .blu-how-card {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+@keyframes blu-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.18); opacity: 1; }
+}
+
+@keyframes blu-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}

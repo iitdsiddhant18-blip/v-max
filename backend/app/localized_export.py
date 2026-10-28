@@ -18,13 +18,16 @@ def export_localized(
     output_root: Path | None = None,
 ) -> dict:
     """Export a localized lesson to 1280x720 H.264/AAC MP4 using browser-rendered SVG frames."""
-    manifest = load_localized(identifier, root=root)
+    manifest = load_localized(identifier, root=root, enforce_duration=True)
+    from .visual_cache import attach_visual
+    manifest = attach_visual(manifest)
+    revision = manifest.get('render_id')
     parsed = urlparse(frontend_url)
     if parsed.scheme != "http" or parsed.hostname not in ("127.0.0.1", "localhost"):
         raise ValueError("Localized lesson renderer must be a local HTTP server")
 
     total = float(manifest["total_seconds"])
-    if not math.isfinite(total) or not 0 < total <= 600:
+    if not math.isfinite(total) or not 30 <= total <= 90:
         raise ValueError(f"Invalid localized lesson audio duration: {total}")
 
     folder = localized_folder(identifier, root)
@@ -32,7 +35,7 @@ def export_localized(
     if not audio.is_file():
         raise FileNotFoundError(f"Combined WAV not found for localized lesson {identifier}")
 
-    destination = (output_root or ROOT / "outputs" / "localized") / f"{identifier}.mp4"
+    destination = (output_root or ROOT / "outputs" / "localized") / f"{identifier}{'.'+revision if revision else ''}.mp4"
     destination.parent.mkdir(parents=True, exist_ok=True)
     count = math.ceil(total * FPS)
 
@@ -57,7 +60,7 @@ def export_localized(
 
                 page.route("**/*", local_only)
                 page.goto(
-                    f"{frontend_url}/render-localized?id={identifier}",
+                    f"{frontend_url}/render-localized?id={identifier}" + (f"&revision={revision}" if revision else ''),
                     wait_until="domcontentloaded",
                     timeout=30000,
                 )
@@ -121,9 +124,17 @@ def export_localized(
         raise ValueError(
             f"MP4 ({details['duration_seconds']:.2f}s) and WAV ({total:.2f}s) durations differ by >0.25s"
         )
+    from .subtitles import manifest_to_srt
+    destination.with_suffix('.srt').write_text(manifest_to_srt(manifest),encoding='utf-8')
 
+    if revision:
+        alias=destination.with_name(identifier+'.mp4')
+        if not alias.exists():
+            import shutil
+            shutil.copyfile(destination,alias)
     return {
-        "video_url": f"/api/localized/video/{identifier}",
+        "video_url": f"/api/localized/video/{identifier}" + (f"?revision={revision}" if revision else ''),
+        "render_id": revision, "output_path": str(destination),
         "subtitle_url": f"/api/localized/subtitles/{identifier}",
         "fps": FPS,
         "frames": count,

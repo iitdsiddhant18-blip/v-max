@@ -1,0 +1,1612 @@
+{
+  "concept_map": {
+    "scene_index": 1,
+    "family": "concept_map",
+    "template_id": null,
+    "entities": [
+      {
+        "id": "one",
+        "role": "input",
+        "label_key": "a",
+        "anchor_id": null
+      },
+      {
+        "id": "two",
+        "role": "process",
+        "label_key": "b",
+        "anchor_id": null
+      },
+      {
+        "id": "three",
+        "role": "output",
+        "label_key": "c",
+        "anchor_id": null
+      }
+    ],
+    "relationships": [
+      {
+        "source": "one",
+        "target": "two",
+        "kind": "flow",
+        "label_key": "relation"
+      },
+      {
+        "source": "two",
+        "target": "three",
+        "kind": "flow",
+        "label_key": "relation"
+      }
+    ],
+    "display_text_en": {
+      "a": "Input",
+      "b": "Process",
+      "c": "Result",
+      "relation": "Changes into",
+      "x_axis": "Input value",
+      "y_axis": "Output value",
+      "curve": "Squared relationship",
+      "equation": "2x + 3 = 11",
+      "note": "Educational illustration"
+    },
+    "beat_actions": [
+      {
+        "beat_index": 0,
+        "op": "highlight",
+        "target_ids": [
+          "one"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 1,
+        "op": "highlight",
+        "target_ids": [
+          "two"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 2,
+        "op": "highlight",
+        "target_ids": [
+          "three"
+        ],
+        "state_index": null,
+        "value": null
+      }
+    ],
+    "data": {
+      "kind": "concept_map",
+      "layout": "tree"
+    }
+  },
+  "flow_process": {
+    "scene_index": 1,
+    "family": "flow_process",
+    "template_id": null,
+    "entities": [
+      {
+        "id": "one",
+        "role": "input",
+        "label_key": "a",
+        "anchor_id": null
+      },
+      {
+        "id": "two",
+        "role": "process",
+        "label_key": "b",
+        "anchor_id": null
+      },
+      {
+        "id": "three",
+        "role": "output",
+        "label_key": "c",
+        "anchor_id": null
+      }
+    ],
+    "relationships": [
+      {
+        "source": "one",
+        "target": "two",
+        "kind": "flow",
+        "label_key": "relation"
+      },
+      {
+        "source": "two",
+        "target": "three",
+        "kind": "flow",
+        "label_key": "relation"
+      }
+    ],
+    "display_text_en": {
+      "a": "Input",
+      "b": "Process",
+      "c": "Result",
+      "relation": "Changes into",
+      "x_axis": "Input value",
+      "y_axis": "Output value",
+      "curve": "Squared relationship",
+      "equation": "2x + 3 = 11",
+      "note": "Educational illustration"
+    },
+    "beat_actions": [
+      {
+        "beat_index": 0,
+        "op": "highlight",
+        "target_ids": [
+          "one"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 1,
+        "op": "highlight",
+        "target_ids": [
+          "two"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 2,
+        "op": "highlight",
+        "target_ids": [
+          "three"
+        ],
+        "state_index": null,
+        "value": null
+      }
+    ],
+    "data": {
+      "kind": "flow_process",
+      "layout": "cycle"
+    }
+  },
+  "generic_diagram": {
+    "scene_index": 1,
+    "family": "generic_diagram",
+    "template_id": null,
+    "entities": [
+      {
+        "id": "one",
+        "role": "input",
+        "label_key": "a",
+        "anchor_id": null
+      },
+      {
+        "id": "two",
+        "role": "process",
+        "label_key": "b",
+        "anchor_id": null
+      },
+      {
+        "id": "three",
+        "role": "output",
+        "label_key": "c",
+        "anchor_id": null
+      }
+    ],
+    "relationships": [
+      {
+        "source": "one",
+        "target": "two",
+        "kind": "flow",
+        "label_key": "relation"
+      },
+      {
+        "source": "two",
+        "target": "three",
+        "kind": "flow",
+        "label_key": "relation"
+      }
+    ],
+    "display_text_en": {
+      "a": "Input",
+      "b": "Process",
+      "c": "Result",
+      "relation": "Changes into",
+      "x_axis": "Input value",
+      "y_axis": "Output value",
+      "curve": "Squared relationship",
+      "equation": "2x + 3 = 11",
+      "note": "Educational illustration"
+    },
+    "beat_actions": [
+      {
+        "beat_index": 0,
+        "op": "highlight",
+        "target_ids": [
+          "one"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 1,
+        "op": "highlight",
+        "target_ids": [
+          "two"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 2,
+        "op": "highlight",
+        "target_ids": [
+          "three"
+        ],
+        "state_index": null,
+        "value": null
+      }
+    ],
+    "data": {
+      "kind": "generic_diagram",
+      "layout": "row"
+    }
+  },
+  "labelled_illustration": {
+    "scene_index": 1,
+    "family": "labelled_illustration",
+    "template_id": "human_digestive_system",
+    "entities": [
+      {
+        "id": "one",
+        "role": "input",
+        "label_key": "a",
+        "anchor_id": "stomach"
+      },
+      {
+        "id": "two",
+        "role": "process",
+        "label_key": "b",
+        "anchor_id": "small_intestine"
+      },
+      {
+        "id": "three",
+        "role": "output",
+        "label_key": "c",
+        "anchor_id": "bloodstream"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "one",
+        "target": "two",
+        "kind": "flow",
+        "label_key": "relation"
+      },
+      {
+        "source": "two",
+        "target": "three",
+        "kind": "flow",
+        "label_key": "relation"
+      }
+    ],
+    "display_text_en": {
+      "a": "Stomach",
+      "b": "Small intestine",
+      "c": "Bloodstream",
+      "relation": "Changes into",
+      "x_axis": "Input value",
+      "y_axis": "Output value",
+      "curve": "Squared relationship",
+      "equation": "2x + 3 = 11",
+      "note": "Educational illustration"
+    },
+    "beat_actions": [
+      {
+        "beat_index": 0,
+        "op": "highlight",
+        "target_ids": [
+          "one"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 1,
+        "op": "highlight",
+        "target_ids": [
+          "two"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 2,
+        "op": "highlight",
+        "target_ids": [
+          "three"
+        ],
+        "state_index": null,
+        "value": null
+      }
+    ],
+    "data": {
+      "kind": "labelled_illustration",
+      "zoom": "focused_part"
+    }
+  },
+  "function_plot": {
+    "scene_index": 1,
+    "family": "function_plot",
+    "template_id": null,
+    "entities": [
+      {
+        "id": "one",
+        "role": "input",
+        "label_key": "a",
+        "anchor_id": null
+      },
+      {
+        "id": "two",
+        "role": "process",
+        "label_key": "b",
+        "anchor_id": null
+      },
+      {
+        "id": "three",
+        "role": "output",
+        "label_key": "c",
+        "anchor_id": null
+      }
+    ],
+    "relationships": [
+      {
+        "source": "one",
+        "target": "two",
+        "kind": "flow",
+        "label_key": "relation"
+      },
+      {
+        "source": "two",
+        "target": "three",
+        "kind": "flow",
+        "label_key": "relation"
+      }
+    ],
+    "display_text_en": {
+      "a": "Input",
+      "b": "Process",
+      "c": "Result",
+      "relation": "Changes into",
+      "x_axis": "Input value",
+      "y_axis": "Output value",
+      "curve": "Squared relationship",
+      "equation": "2x + 3 = 11",
+      "note": "Educational illustration"
+    },
+    "beat_actions": [
+      {
+        "beat_index": 0,
+        "op": "plot_to_x",
+        "target_ids": [
+          "one"
+        ],
+        "state_index": null,
+        "value": -2.0
+      },
+      {
+        "beat_index": 1,
+        "op": "plot_to_x",
+        "target_ids": [
+          "one"
+        ],
+        "state_index": null,
+        "value": 0.0
+      },
+      {
+        "beat_index": 2,
+        "op": "plot_to_x",
+        "target_ids": [
+          "one"
+        ],
+        "state_index": null,
+        "value": 2.0
+      }
+    ],
+    "data": {
+      "kind": "function_plot",
+      "function": "polynomial",
+      "coefficients": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": 1.0,
+      "frequency": 1.0,
+      "shift": 0.0,
+      "offset": 0.0,
+      "x_min": -3.0,
+      "x_max": 3.0,
+      "y_min": -1.0,
+      "y_max": 10.0,
+      "x_label_key": "x_axis",
+      "y_label_key": "y_axis",
+      "curve_label_key": "curve",
+      "point_xs": [
+        -2.0,
+        0.0,
+        2.0
+      ],
+      "tangent_x": 1.0,
+      "secant_x": 2.0,
+      "shade_interval": null
+    }
+  },
+  "number_line": {
+    "scene_index": 1,
+    "family": "number_line",
+    "template_id": null,
+    "entities": [
+      {
+        "id": "one",
+        "role": "input",
+        "label_key": "a",
+        "anchor_id": null
+      },
+      {
+        "id": "two",
+        "role": "process",
+        "label_key": "b",
+        "anchor_id": null
+      },
+      {
+        "id": "three",
+        "role": "output",
+        "label_key": "c",
+        "anchor_id": null
+      }
+    ],
+    "relationships": [
+      {
+        "source": "one",
+        "target": "two",
+        "kind": "flow",
+        "label_key": "relation"
+      },
+      {
+        "source": "two",
+        "target": "three",
+        "kind": "flow",
+        "label_key": "relation"
+      }
+    ],
+    "display_text_en": {
+      "a": "Input",
+      "b": "Process",
+      "c": "Result",
+      "relation": "Changes into",
+      "x_axis": "Input value",
+      "y_axis": "Output value",
+      "curve": "Squared relationship",
+      "equation": "2x + 3 = 11",
+      "note": "Educational illustration"
+    },
+    "beat_actions": [
+      {
+        "beat_index": 0,
+        "op": "highlight",
+        "target_ids": [
+          "one"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 1,
+        "op": "highlight",
+        "target_ids": [
+          "two"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 2,
+        "op": "highlight",
+        "target_ids": [
+          "three"
+        ],
+        "state_index": null,
+        "value": null
+      }
+    ],
+    "data": {
+      "kind": "number_line",
+      "minimum": -3.0,
+      "maximum": 3.0,
+      "points": [
+        -1.5,
+        0.0,
+        0.5
+      ],
+      "intervals": [
+        {
+          "start": -1.5,
+          "end": 0.5,
+          "start_closed": false,
+          "end_closed": true
+        }
+      ],
+      "axis_label_key": "x_axis"
+    }
+  },
+  "data_chart": {
+    "scene_index": 1,
+    "family": "data_chart",
+    "template_id": null,
+    "entities": [
+      {
+        "id": "one",
+        "role": "input",
+        "label_key": "a",
+        "anchor_id": null
+      },
+      {
+        "id": "two",
+        "role": "process",
+        "label_key": "b",
+        "anchor_id": null
+      },
+      {
+        "id": "three",
+        "role": "output",
+        "label_key": "c",
+        "anchor_id": null
+      }
+    ],
+    "relationships": [
+      {
+        "source": "one",
+        "target": "two",
+        "kind": "flow",
+        "label_key": "relation"
+      },
+      {
+        "source": "two",
+        "target": "three",
+        "kind": "flow",
+        "label_key": "relation"
+      }
+    ],
+    "display_text_en": {
+      "a": "Input",
+      "b": "Process",
+      "c": "Result",
+      "relation": "Changes into",
+      "x_axis": "Input value",
+      "y_axis": "Output value",
+      "curve": "Squared relationship",
+      "equation": "2x + 3 = 11",
+      "note": "Educational illustration"
+    },
+    "beat_actions": [
+      {
+        "beat_index": 0,
+        "op": "highlight",
+        "target_ids": [
+          "one"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 1,
+        "op": "highlight",
+        "target_ids": [
+          "two"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 2,
+        "op": "highlight",
+        "target_ids": [
+          "three"
+        ],
+        "state_index": null,
+        "value": null
+      }
+    ],
+    "data": {
+      "kind": "data_chart",
+      "chart": "bar",
+      "category_keys": [
+        "a",
+        "b",
+        "c"
+      ],
+      "series": [
+        {
+          "label_key": "curve",
+          "values": [
+            2.0,
+            4.0,
+            6.0
+          ]
+        }
+      ],
+      "x_label_key": "x_axis",
+      "y_label_key": "y_axis"
+    }
+  },
+  "force_motion": {
+    "scene_index": 1,
+    "family": "force_motion",
+    "template_id": null,
+    "entities": [
+      {
+        "id": "one",
+        "role": "input",
+        "label_key": "a",
+        "anchor_id": null
+      },
+      {
+        "id": "two",
+        "role": "process",
+        "label_key": "b",
+        "anchor_id": null
+      },
+      {
+        "id": "three",
+        "role": "output",
+        "label_key": "c",
+        "anchor_id": null
+      }
+    ],
+    "relationships": [
+      {
+        "source": "one",
+        "target": "two",
+        "kind": "flow",
+        "label_key": "relation"
+      },
+      {
+        "source": "two",
+        "target": "three",
+        "kind": "flow",
+        "label_key": "relation"
+      }
+    ],
+    "display_text_en": {
+      "a": "Input",
+      "b": "Process",
+      "c": "Result",
+      "relation": "Changes into",
+      "x_axis": "Input value",
+      "y_axis": "Output value",
+      "curve": "Squared relationship",
+      "equation": "2x + 3 = 11",
+      "note": "Educational illustration"
+    },
+    "beat_actions": [
+      {
+        "beat_index": 0,
+        "op": "highlight",
+        "target_ids": [
+          "one"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 1,
+        "op": "highlight",
+        "target_ids": [
+          "two"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 2,
+        "op": "highlight",
+        "target_ids": [
+          "three"
+        ],
+        "state_index": null,
+        "value": null
+      }
+    ],
+    "data": {
+      "kind": "force_motion",
+      "mode": "force",
+      "mass_kg": 2.0,
+      "vectors": [
+        {
+          "entity_id": "one",
+          "x": 6.0,
+          "y": 0.0,
+          "unit": "N"
+        },
+        {
+          "entity_id": "two",
+          "x": -2.0,
+          "y": 0.0,
+          "unit": "N"
+        }
+      ],
+      "displacement_m": 5.0,
+      "seconds": 2.0,
+      "resistance_ohm": 2.0,
+      "voltage_v": 6.0,
+      "amplitude": 1.0,
+      "frequency_hz": 1.0,
+      "schematic_label_key": "note"
+    }
+  },
+  "formula": {
+    "scene_index": 1,
+    "family": "formula",
+    "template_id": null,
+    "entities": [
+      {
+        "id": "one",
+        "role": "input",
+        "label_key": "a",
+        "anchor_id": null
+      },
+      {
+        "id": "two",
+        "role": "process",
+        "label_key": "b",
+        "anchor_id": null
+      },
+      {
+        "id": "three",
+        "role": "output",
+        "label_key": "c",
+        "anchor_id": null
+      }
+    ],
+    "relationships": [
+      {
+        "source": "one",
+        "target": "two",
+        "kind": "flow",
+        "label_key": "relation"
+      },
+      {
+        "source": "two",
+        "target": "three",
+        "kind": "flow",
+        "label_key": "relation"
+      }
+    ],
+    "display_text_en": {
+      "a": "Input",
+      "b": "Process",
+      "c": "Result",
+      "relation": "Changes into",
+      "x_axis": "Input value",
+      "y_axis": "Output value",
+      "curve": "Squared relationship",
+      "equation": "2x + 3 = 11",
+      "note": "Educational illustration"
+    },
+    "beat_actions": [
+      {
+        "beat_index": 0,
+        "op": "highlight",
+        "target_ids": [
+          "one"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 1,
+        "op": "highlight",
+        "target_ids": [
+          "two"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 2,
+        "op": "highlight",
+        "target_ids": [
+          "three"
+        ],
+        "state_index": null,
+        "value": null
+      }
+    ],
+    "data": {
+      "kind": "formula",
+      "expression_key": "equation",
+      "step_keys": [
+        "a",
+        "b",
+        "c"
+      ],
+      "linear_equation": [
+        2.0,
+        3.0,
+        11.0
+      ]
+    }
+  },
+  "equation_balance": {
+    "scene_index": 1,
+    "family": "equation_balance",
+    "template_id": null,
+    "entities": [
+      {
+        "id": "one",
+        "role": "input",
+        "label_key": "a",
+        "anchor_id": null
+      },
+      {
+        "id": "two",
+        "role": "process",
+        "label_key": "b",
+        "anchor_id": null
+      },
+      {
+        "id": "three",
+        "role": "output",
+        "label_key": "c",
+        "anchor_id": null
+      }
+    ],
+    "relationships": [
+      {
+        "source": "one",
+        "target": "two",
+        "kind": "flow",
+        "label_key": "relation"
+      },
+      {
+        "source": "two",
+        "target": "three",
+        "kind": "flow",
+        "label_key": "relation"
+      }
+    ],
+    "display_text_en": {
+      "a": "Input",
+      "b": "Process",
+      "c": "Result",
+      "relation": "Changes into",
+      "x_axis": "Input value",
+      "y_axis": "Output value",
+      "curve": "Squared relationship",
+      "equation": "2x + 3 = 11",
+      "note": "Educational illustration"
+    },
+    "beat_actions": [
+      {
+        "beat_index": 0,
+        "op": "highlight",
+        "target_ids": [
+          "one"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 1,
+        "op": "highlight",
+        "target_ids": [
+          "two"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 2,
+        "op": "highlight",
+        "target_ids": [
+          "three"
+        ],
+        "state_index": null,
+        "value": null
+      }
+    ],
+    "data": {
+      "kind": "equation_balance",
+      "expression_key": "equation",
+      "step_keys": [
+        "a",
+        "b",
+        "c"
+      ],
+      "linear_equation": [
+        2.0,
+        3.0,
+        11.0
+      ]
+    }
+  },
+  "reaction_equation": {
+    "scene_index": 1,
+    "family": "reaction_equation",
+    "template_id": null,
+    "entities": [
+      {
+        "id": "one",
+        "role": "input",
+        "label_key": "a",
+        "anchor_id": null
+      },
+      {
+        "id": "two",
+        "role": "process",
+        "label_key": "b",
+        "anchor_id": null
+      },
+      {
+        "id": "three",
+        "role": "output",
+        "label_key": "c",
+        "anchor_id": null
+      }
+    ],
+    "relationships": [
+      {
+        "source": "one",
+        "target": "two",
+        "kind": "flow",
+        "label_key": "relation"
+      },
+      {
+        "source": "two",
+        "target": "three",
+        "kind": "flow",
+        "label_key": "relation"
+      }
+    ],
+    "display_text_en": {
+      "a": "Input",
+      "b": "Process",
+      "c": "Result",
+      "relation": "Changes into",
+      "x_axis": "Input value",
+      "y_axis": "Output value",
+      "curve": "Squared relationship",
+      "equation": "2x + 3 = 11",
+      "note": "Educational illustration"
+    },
+    "beat_actions": [
+      {
+        "beat_index": 0,
+        "op": "highlight",
+        "target_ids": [
+          "one"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 1,
+        "op": "highlight",
+        "target_ids": [
+          "two"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 2,
+        "op": "highlight",
+        "target_ids": [
+          "three"
+        ],
+        "state_index": null,
+        "value": null
+      }
+    ],
+    "data": {
+      "kind": "reaction_equation",
+      "reactants": [
+        {
+          "formula": "H2",
+          "coefficient": 2,
+          "label_key": "a",
+          "state": "unspecified"
+        },
+        {
+          "formula": "O2",
+          "coefficient": 1,
+          "label_key": "b",
+          "state": "unspecified"
+        }
+      ],
+      "products": [
+        {
+          "formula": "H2O",
+          "coefficient": 2,
+          "label_key": "c",
+          "state": "unspecified"
+        }
+      ]
+    }
+  },
+  "lab_process": {
+    "scene_index": 1,
+    "family": "lab_process",
+    "template_id": null,
+    "entities": [
+      {
+        "id": "one",
+        "role": "input",
+        "label_key": "a",
+        "anchor_id": null
+      },
+      {
+        "id": "two",
+        "role": "process",
+        "label_key": "b",
+        "anchor_id": null
+      },
+      {
+        "id": "three",
+        "role": "output",
+        "label_key": "c",
+        "anchor_id": null
+      }
+    ],
+    "relationships": [
+      {
+        "source": "one",
+        "target": "two",
+        "kind": "flow",
+        "label_key": "relation"
+      },
+      {
+        "source": "two",
+        "target": "three",
+        "kind": "flow",
+        "label_key": "relation"
+      }
+    ],
+    "display_text_en": {
+      "a": "Input",
+      "b": "Process",
+      "c": "Result",
+      "relation": "Changes into",
+      "x_axis": "Input value",
+      "y_axis": "Output value",
+      "curve": "Squared relationship",
+      "equation": "2x + 3 = 11",
+      "note": "Educational illustration"
+    },
+    "beat_actions": [
+      {
+        "beat_index": 0,
+        "op": "highlight",
+        "target_ids": [
+          "one"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 1,
+        "op": "highlight",
+        "target_ids": [
+          "two"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 2,
+        "op": "highlight",
+        "target_ids": [
+          "three"
+        ],
+        "state_index": null,
+        "value": null
+      }
+    ],
+    "data": {
+      "kind": "lab_process",
+      "apparatus": [
+        {
+          "entity_id": "one",
+          "shape": "pipette",
+          "volume_ml": 20.0,
+          "capacity_ml": 40.0,
+          "solute_units": 0.0
+        },
+        {
+          "entity_id": "two",
+          "shape": "beaker",
+          "volume_ml": 30.0,
+          "capacity_ml": 100.0,
+          "solute_units": 3.0
+        }
+      ],
+      "source_id": "one",
+      "target_id": "two",
+      "transfer_ml": 20.0,
+      "illustration_label_key": "note"
+    }
+  },
+  "code_trace": {
+    "scene_index": 1,
+    "family": "code_trace",
+    "template_id": null,
+    "entities": [
+      {
+        "id": "one",
+        "role": "input",
+        "label_key": "a",
+        "anchor_id": null
+      },
+      {
+        "id": "two",
+        "role": "process",
+        "label_key": "b",
+        "anchor_id": null
+      },
+      {
+        "id": "three",
+        "role": "output",
+        "label_key": "c",
+        "anchor_id": null
+      }
+    ],
+    "relationships": [
+      {
+        "source": "one",
+        "target": "two",
+        "kind": "flow",
+        "label_key": "relation"
+      },
+      {
+        "source": "two",
+        "target": "three",
+        "kind": "flow",
+        "label_key": "relation"
+      }
+    ],
+    "display_text_en": {
+      "a": "Input",
+      "b": "Process",
+      "c": "Result",
+      "relation": "Changes into",
+      "x_axis": "Input value",
+      "y_axis": "Output value",
+      "curve": "Squared relationship",
+      "equation": "2x + 3 = 11",
+      "note": "Educational illustration"
+    },
+    "beat_actions": [
+      {
+        "beat_index": 0,
+        "op": "highlight",
+        "target_ids": [
+          "one"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 1,
+        "op": "highlight",
+        "target_ids": [
+          "two"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 2,
+        "op": "highlight",
+        "target_ids": [
+          "three"
+        ],
+        "state_index": null,
+        "value": null
+      }
+    ],
+    "data": {
+      "kind": "code_trace",
+      "code": "total = 0\nfor n in [2, 4, 6]:\n    total += n\nprint(total)",
+      "trace_mode": "bounded",
+      "variables_label_key": "a",
+      "output_label_key": "b",
+      "status_label_key": "note"
+    }
+  },
+  "algorithm_state": {
+    "scene_index": 1,
+    "family": "algorithm_state",
+    "template_id": null,
+    "entities": [
+      {
+        "id": "one",
+        "role": "input",
+        "label_key": "a",
+        "anchor_id": null
+      },
+      {
+        "id": "two",
+        "role": "process",
+        "label_key": "b",
+        "anchor_id": null
+      },
+      {
+        "id": "three",
+        "role": "output",
+        "label_key": "c",
+        "anchor_id": null
+      }
+    ],
+    "relationships": [
+      {
+        "source": "one",
+        "target": "two",
+        "kind": "flow",
+        "label_key": "relation"
+      },
+      {
+        "source": "two",
+        "target": "three",
+        "kind": "flow",
+        "label_key": "relation"
+      }
+    ],
+    "display_text_en": {
+      "a": "A",
+      "b": "B",
+      "c": "C",
+      "relation": "Changes into",
+      "x_axis": "Input value",
+      "y_axis": "Output value",
+      "curve": "Squared relationship",
+      "equation": "2x + 3 = 11",
+      "note": "Educational illustration"
+    },
+    "beat_actions": [
+      {
+        "beat_index": 0,
+        "op": "set_state",
+        "target_ids": [
+          "one"
+        ],
+        "state_index": 1,
+        "value": null
+      },
+      {
+        "beat_index": 1,
+        "op": "set_state",
+        "target_ids": [
+          "one"
+        ],
+        "state_index": 4,
+        "value": null
+      },
+      {
+        "beat_index": 2,
+        "op": "set_state",
+        "target_ids": [
+          "one"
+        ],
+        "state_index": 7,
+        "value": null
+      }
+    ],
+    "data": {
+      "kind": "algorithm_state",
+      "algorithm": "hanoi",
+      "disks": 3,
+      "values": [
+        1,
+        3,
+        5,
+        7,
+        9
+      ],
+      "target": 7,
+      "state_label_key": "note",
+      "pointer_keys": [
+        "a",
+        "b",
+        "c"
+      ]
+    }
+  },
+  "timeline": {
+    "scene_index": 1,
+    "family": "timeline",
+    "template_id": null,
+    "entities": [
+      {
+        "id": "one",
+        "role": "input",
+        "label_key": "a",
+        "anchor_id": null
+      },
+      {
+        "id": "two",
+        "role": "process",
+        "label_key": "b",
+        "anchor_id": null
+      },
+      {
+        "id": "three",
+        "role": "output",
+        "label_key": "c",
+        "anchor_id": null
+      }
+    ],
+    "relationships": [
+      {
+        "source": "one",
+        "target": "two",
+        "kind": "flow",
+        "label_key": "relation"
+      },
+      {
+        "source": "two",
+        "target": "three",
+        "kind": "flow",
+        "label_key": "relation"
+      }
+    ],
+    "display_text_en": {
+      "a": "Input",
+      "b": "Process",
+      "c": "Result",
+      "relation": "Changes into",
+      "x_axis": "Input value",
+      "y_axis": "Output value",
+      "curve": "Squared relationship",
+      "equation": "2x + 3 = 11",
+      "note": "Educational illustration"
+    },
+    "beat_actions": [
+      {
+        "beat_index": 0,
+        "op": "highlight",
+        "target_ids": [
+          "one"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 1,
+        "op": "highlight",
+        "target_ids": [
+          "two"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 2,
+        "op": "highlight",
+        "target_ids": [
+          "three"
+        ],
+        "state_index": null,
+        "value": null
+      }
+    ],
+    "data": {
+      "kind": "timeline",
+      "events": [
+        {
+          "entity_id": "one",
+          "time_label_key": "a",
+          "order": 0
+        },
+        {
+          "entity_id": "two",
+          "time_label_key": "b",
+          "order": 1
+        },
+        {
+          "entity_id": "three",
+          "time_label_key": "c",
+          "order": 2
+        }
+      ]
+    }
+  },
+  "comparison": {
+    "scene_index": 1,
+    "family": "comparison",
+    "template_id": null,
+    "entities": [
+      {
+        "id": "one",
+        "role": "input",
+        "label_key": "a",
+        "anchor_id": null
+      },
+      {
+        "id": "two",
+        "role": "process",
+        "label_key": "b",
+        "anchor_id": null
+      },
+      {
+        "id": "three",
+        "role": "output",
+        "label_key": "c",
+        "anchor_id": null
+      }
+    ],
+    "relationships": [
+      {
+        "source": "one",
+        "target": "two",
+        "kind": "flow",
+        "label_key": "relation"
+      },
+      {
+        "source": "two",
+        "target": "three",
+        "kind": "flow",
+        "label_key": "relation"
+      }
+    ],
+    "display_text_en": {
+      "a": "Input",
+      "b": "Process",
+      "c": "Result",
+      "relation": "Changes into",
+      "x_axis": "Input value",
+      "y_axis": "Output value",
+      "curve": "Squared relationship",
+      "equation": "2x + 3 = 11",
+      "note": "Educational illustration"
+    },
+    "beat_actions": [
+      {
+        "beat_index": 0,
+        "op": "highlight",
+        "target_ids": [
+          "one"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 1,
+        "op": "highlight",
+        "target_ids": [
+          "two"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 2,
+        "op": "highlight",
+        "target_ids": [
+          "three"
+        ],
+        "state_index": null,
+        "value": null
+      }
+    ],
+    "data": {
+      "kind": "comparison",
+      "column_keys": [
+        "a",
+        "b"
+      ],
+      "rows": [
+        [
+          "curve",
+          "equation"
+        ],
+        [
+          "x_axis",
+          "y_axis"
+        ]
+      ]
+    }
+  },
+  "table": {
+    "scene_index": 1,
+    "family": "table",
+    "template_id": null,
+    "entities": [
+      {
+        "id": "one",
+        "role": "input",
+        "label_key": "a",
+        "anchor_id": null
+      },
+      {
+        "id": "two",
+        "role": "process",
+        "label_key": "b",
+        "anchor_id": null
+      },
+      {
+        "id": "three",
+        "role": "output",
+        "label_key": "c",
+        "anchor_id": null
+      }
+    ],
+    "relationships": [
+      {
+        "source": "one",
+        "target": "two",
+        "kind": "flow",
+        "label_key": "relation"
+      },
+      {
+        "source": "two",
+        "target": "three",
+        "kind": "flow",
+        "label_key": "relation"
+      }
+    ],
+    "display_text_en": {
+      "a": "Input",
+      "b": "Process",
+      "c": "Result",
+      "relation": "Changes into",
+      "x_axis": "Input value",
+      "y_axis": "Output value",
+      "curve": "Squared relationship",
+      "equation": "2x + 3 = 11",
+      "note": "Educational illustration"
+    },
+    "beat_actions": [
+      {
+        "beat_index": 0,
+        "op": "highlight",
+        "target_ids": [
+          "one"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 1,
+        "op": "highlight",
+        "target_ids": [
+          "two"
+        ],
+        "state_index": null,
+        "value": null
+      },
+      {
+        "beat_index": 2,
+        "op": "highlight",
+        "target_ids": [
+          "three"
+        ],
+        "state_index": null,
+        "value": null
+      }
+    ],
+    "data": {
+      "kind": "table",
+      "column_keys": [
+        "a",
+        "b"
+      ],
+      "rows": [
+        [
+          "curve",
+          "equation"
+        ],
+        [
+          "x_axis",
+          "y_axis"
+        ]
+      ]
+    }
+  }
+}

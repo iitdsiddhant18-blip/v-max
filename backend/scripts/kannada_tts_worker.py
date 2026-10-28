@@ -27,8 +27,36 @@ DEFAULT_DESCRIPTION = (
 )
 
 
+APPROVED_TECHNICAL_TOKENS = {
+    "sin", "cos", "tan", "cot", "sec", "csc", "log", "ln", "exp", "lim",
+    "max", "min", "det", "abs", "sqrt", "pi", "rad", "deg", "dx", "dt", "dy", "dz",
+    "m", "s", "kg", "km", "cm", "mm", "ms", "hz", "khz", "mhz", "ghz",
+    "pa", "kpa", "j", "kj", "w", "kw", "v", "mv", "a", "ma", "mol", "k", "db", "n", "ohm",
+    "alice", "bob", "python", "dna", "rna", "atp", "adp", "ph",
+    "def", "int", "str", "float", "bool", "len", "range", "print", "return",
+    "for", "in", "if", "else", "elif", "while", "null", "true", "false",
+    "none", "void", "class", "var", "let", "const",
+}
+
+
 def has_kannada_script(text: str) -> bool:
     return any(0x0C80 <= ord(c) <= 0x0CFF for c in text)
+
+
+def is_exempt_technical_segment(text: str) -> bool:
+    import re
+    cleaned = text.strip()
+    if not cleaned:
+        return False
+    words = re.findall(r"\b[A-Za-z]+(?:'[A-Za-z]+)?\b", cleaned)
+    if not words:
+        return True
+    for word in words:
+        w_lower = word.lower()
+        if len(word) == 1 or w_lower in APPROVED_TECHNICAL_TOKENS or re.fullmatch(r"[A-Z][a-z]?\d*", word):
+            continue
+        return False
+    return True
 
 
 def run_job(job_path: Path) -> dict:
@@ -50,7 +78,7 @@ def run_job(job_path: Path) -> dict:
         text = str(seg.get("text", "")).strip()
         if not text:
             raise ValueError(f"Segment {idx} has empty text")
-        if not has_kannada_script(text):
+        if not has_kannada_script(text) and not is_exempt_technical_segment(text):
             raise ValueError(f"Segment {idx} contains no Kannada script characters: '{text}'")
         out_path = Path(seg.get("output_path", ""))
         if not out_path.name.endswith(".wav"):

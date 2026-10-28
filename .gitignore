@@ -1,23 +1,56 @@
-# Python
+# Python environments
 .venv/
-.venv-tts/
+.venv-*/
+venv/
 __pycache__/
-*.pyc
+*.py[cod]
 .pytest_cache/
+.mypy_cache/
 
-# Frontend
+# Node dependencies and builds
+node_modules/
 frontend/node_modules/
 frontend/dist/
+dist/
+build/
 
-# Large model files (downloaded separately, listed in README)
-/models/
+# Local AI models
+models/
+.ollama/
+*.gguf
+*.safetensors
+*.onnx
+*.pt
+*.pth
 
-# Pre-event benchmark scratch files (root level only; backend/tests is NOT ignored)
+# Generated media and runtime caches
+*.mp4
+*.wav
+*.mp3
+outputs/
+backend/cache/
+frontend/test-results/
+frontend/playwright-report/
+
+# Archives
+*.zip
+*.7z
+*.rar
+
+# Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Local temporary and scratch files
+.DS_Store
+Thumbs.db
 /test_*.py
-/*.wav
 /translations.txt
 /pw_test.png
-
-# Generated at runtime
-backend/cache/
-outputs/
+/scratch_*
+scratch/
+/PART_3B_VERIFICATION_REPORT.md
+/PHASE_4_IMPLEMENTATION_MAP.md

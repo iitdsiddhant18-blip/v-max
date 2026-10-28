@@ -13,15 +13,18 @@ from .media import ROOT
 def export_lesson(identifier: str, *, frontend_url: str = FRONTEND_URL,
                   root: Path = LIVE_ROOT, output_root: Path | None = None) -> dict:
     manifest = load_lesson(identifier, root=root)
+    from .visual_cache import attach_visual
+    manifest = attach_visual(manifest)
+    revision = manifest.get('render_id')
     parsed = urlparse(frontend_url)
     if parsed.scheme != "http" or parsed.hostname not in ("127.0.0.1", "localhost"):
         raise ValueError("Lesson renderer must be a local HTTP server")
     total = float(manifest["total_seconds"])
-    if not math.isfinite(total) or not 0 < total <= 600:
+    if not math.isfinite(total) or not 30 <= total <= 90:
         raise ValueError("Invalid lesson audio duration")
     folder = lesson_folder(identifier, root)
     audio = folder / "combined.wav"
-    destination = (output_root or ROOT / "outputs" / "lessons") / f"{identifier}.mp4"
+    destination = (output_root or ROOT / "outputs" / "lessons") / f"{identifier}{'.'+revision if revision else ''}.mp4"
     destination.parent.mkdir(parents=True, exist_ok=True)
     count = math.ceil(total * FPS)
 
@@ -42,7 +45,7 @@ def export_lesson(identifier: str, *, frontend_url: str = FRONTEND_URL,
                         route.abort()
 
                 page.route("**/*", local_only)
-                page.goto(f"{frontend_url}/render-lesson?id={identifier}",
+                page.goto(f"{frontend_url}/render-lesson?id={identifier}" + (f"&revision={revision}" if revision else ''),
                           wait_until="domcontentloaded", timeout=30000)
                 page.wait_for_function("window.__BLU_READY__ === true", timeout=30000)
                 stage = page.locator("#lesson-stage")
@@ -73,5 +76,15 @@ def export_lesson(identifier: str, *, frontend_url: str = FRONTEND_URL,
     details = probe_mp4(destination)
     if abs(details["duration_seconds"] - total) > 0.25:
         raise ValueError("MP4 and WAV durations differ")
-    return {"video_url": f"/api/lesson/video/{identifier}", "fps": FPS,
+    from .subtitles import manifest_to_srt
+    destination.with_suffix('.srt').write_text(manifest_to_srt(manifest),encoding='utf-8')
+    if revision:
+        # Preserve old media. Canonical first-export alias supports old tooling.
+        alias=destination.with_name(identifier+'.mp4')
+        if not alias.exists():
+            import shutil
+            shutil.copyfile(destination,alias)
+    return {"video_url": f"/api/lesson/video/{identifier}" + (f"?revision={revision}" if revision else ''),
+            "render_id": revision, "output_path": str(destination), "fps": FPS,
+            "subtitle_url":f'/api/lesson/subtitles/{identifier}',
             "frames": count, "expected_duration_seconds": total, **details}

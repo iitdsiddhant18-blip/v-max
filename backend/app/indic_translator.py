@@ -19,7 +19,7 @@ from .translated_lesson import clean_text
 
 LANG_TAGS = {"hi": "hin_Deva", "kn": "kan_Knda"}
 MODEL_ID = "ai4bharat/indictrans2-en-indic-dist-200M"
-BATCH_SIZE = 4
+BATCH_SIZE = 1
 
 # Protected glossary patterns (ordered: longer/complex expressions first)
 PROTECTED_PATTERNS = [

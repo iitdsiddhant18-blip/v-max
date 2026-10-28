@@ -123,13 +123,114 @@ def test_sentence_cues_follow_unequal_real_pcm_lengths(tmp_path):
         assert wav.getnframes() == 16000
 
 
+def test_generated_english_uses_native_voice_and_one_hook_cue(tmp_path):
+    import numpy as np
+    from backend.app.live import synthesize_scene
+    from backend.app.schema import Scene
+    calls=[]
+    class Engine:
+        def create(self,text,**options):
+            calls.append((text,options))
+            return np.zeros(8000),8000
+    scene=Scene(type='title_card',heading='A hook',narration='What changes here? Follow the input to find out.')
+    cues=synthesize_scene(scene.narration,tmp_path/'hook.wav',Engine(),scene)
+    assert len(cues)==1 and cues[0]['text']==scene.narration
+    assert calls[0][1]['voice']=='af_heart' and calls[0][1]['lang']=='en-us'
+    assert calls[0][1]['speed']==1.0
+
+
+def test_factual_review_rejects_explicit_errors_before_preparation():
+    from backend.app.live import review_teaching
+    def reject(payload):
+        assert payload['options']['num_predict']==1800
+        return {'message':{'content':'{"valid":false,"issues":["The example invents an unsupported rate."]}'}}
+    with pytest.raises(ValueError,match='unsupported rate'):
+        review_teaching(lesson(),GenerateRequest(topic='A concept'),reject,'qwen3:4b')
+    def approve(payload):return {'message':{'content':'{"valid":true,"issues":[]}'}}
+    review_teaching(lesson(),GenerateRequest(topic='A concept'),approve,'qwen3:4b')
+
+
+def test_budgeted_review_notes_require_a_separate_structured_decision():
+    from backend.app.live import review_teaching
+    calls=[]
+    def send(payload):
+        calls.append(payload)
+        if len(calls)==1:
+            return {'message':{'content':'','thinking':'The example may contain an unsupported claim; no final decision yet.'}}
+        return {'message':{'content':'{"issues":["The factual review was inconclusive."],"valid":false}'}}
+    with pytest.raises(ValueError,match='inconclusive'):
+        review_teaching(lesson(),GenerateRequest(topic='A concept'),send,'qwen3:4b')
+    assert len(calls)==2 and calls[0]['think'] is True and calls[1]['think'] is False
+    assert calls[1]['options']['num_predict']==600
+
+
+def test_unprovided_measurements_need_an_explicit_example_assumption():
+    from backend.app.live import validate_measurement_assumptions
+    data=lesson().model_dump()
+    data['scenes'][1]['narration']='After 2 hours, the process always reaches its final state.'
+    request=GenerateRequest(topic='Explain how the process changes state')
+    with pytest.raises(ValueError,match='Unprovided measurement'):
+        validate_measurement_assumptions(Lesson.model_validate(data),request)
+    data['scenes'][1]['narration']='Suppose this example takes 2 hours to reach its final state.'
+    validate_measurement_assumptions(Lesson.model_validate(data),request)
+    data['scenes'][1]['narration']='After 2 hours, the example has reached its final state.'
+    validate_measurement_assumptions(Lesson.model_validate(data),GenerateRequest(topic='Explain this example after 2 hours'))
+
+
+def test_reasoned_draft_notes_are_completed_as_validated_data(monkeypatch):
+    from backend.app.live import plan_timed_lesson
+    monkeypatch.setenv('BLU_PLANNER_MODEL','qwen3:4b')
+    def beat(label,fact,source,target):
+        return {'label':label,'fact':fact,'source_label':source,'relation_label':'connects to','target_label':target}
+    draft={'title':'A switch changes a path','hook':{'heading':'Follow one change',
+        'narration':'Follow a switch from its open state to a complete conducting path in a simple circuit.'},
+        'explanations':[], 'worked_example':{'heading':'Trace one input','purpose':'worked_example','type':'diagram',
+        'beats':[beat('Case','Suppose a switch begins open, so its two contacts are separated.','Open switch','Separated contacts'),
+                 beat('Result','Closing the switch joins the contacts and completes the conducting path.','Closed switch','Conducting path'),
+                 beat('Why','The connected path allows charges to circulate when a power source is present.','Connected path','Circulating charge')]},
+        'recap':{'heading':'Check the path','beats':[beat('Summary','A closed switch connects its contacts, completing a path for electric current.','Closed switch','Current path')]}}
+    calls=[]
+    def send(payload):
+        calls.append(payload)
+        if len(calls)==1:return {'message':{'content':'','thinking':'Use the open and closed states; then trace the completed path.'}}
+        return {'message':{'content':json.dumps(draft)}}
+    source,result=plan_timed_lesson(GenerateRequest(topic='How does a switch change a conducting path?'),
+                                  transport=send,prepare=lambda _: {'total_seconds':50})
+    assert source=='llm' and len(result.scenes)==3
+    assert len(calls)==2 and calls[0]['think'] is True and calls[1]['think'] is False
+
+
 def test_playable_duration_is_inclusive_30_to_90_seconds():
     from backend.app.live import _check_duration
-    for seconds in (29.999, 90.001):
-        with pytest.raises(ValueError, match="30–90"):
+    for seconds in (29.9, 29.999, 90.001, 90.1, 94.53, float("nan"), float("inf"), -1.0, 0):
+        with pytest.raises(ValueError):
             _check_duration({"total_seconds": seconds})
-    for seconds in (30, 90):
+    for seconds in (30, 30.0, 60.0, 90, 90.0):
         _check_duration({"total_seconds": seconds})
+
+
+def test_duration_edge_cases_and_cached_94s_rejection(tmp_path):
+    from backend.app.live import load_lesson, prepare_lesson
+    from backend.app.live_export import export_lesson
+    from backend.tests.test_live import lesson, fake_voice
+
+    # Prepare a valid cached lesson with media on disk
+    manifest = prepare_lesson(lesson(), root=tmp_path, synthesize=fake_voice)
+    ident = manifest["lesson_id"]
+    timeline_path = tmp_path / ident / "timeline.json"
+
+    # Now tamper timeline.json to 94.53s (the exact B2 duration)
+    manifest["total_seconds"] = 94.53
+    timeline_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    # load_lesson with enforce_duration=True must reject
+    with pytest.raises(ValueError, match="30–90"):
+        load_lesson(ident, root=tmp_path, enforce_duration=True)
+
+    # export_lesson must reject out-of-range media
+    with pytest.raises(ValueError, match="duration"):
+        export_lesson(ident, root=tmp_path)
+
 
 
 def test_measured_short_lesson_replans_content_before_returning():
@@ -243,9 +344,10 @@ def test_live_decoding_grammar_does_not_mutate_the_shared_schema():
 
     plan_timed_lesson(GenerateRequest(topic="Photosynthesis"), planner=planner, transport=send)
     schema = captured[0]["format"]
-    assert schema["properties"]["scenes"]["minItems"] == schema["properties"]["scenes"]["maxItems"] == 5
-    assert "code_walkthrough" not in schema["$defs"]["Scene"]["properties"]["type"]["enum"]
-    assert schema["$defs"]["Scene"]["properties"]["code"] == {"type": "null"}
+    assert schema["properties"]["explanations"]["minItems"] == 0
+    assert schema["properties"]["explanations"]["maxItems"] == 3
+    # Hook + 0–3 explanations + required worked example + recap = 3–6 scenes.
+    assert set(schema['required']) == {'title','hook','explanations','worked_example','recap'}
     assert Lesson.model_json_schema() == before
 
 
